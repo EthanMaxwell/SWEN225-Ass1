@@ -35,15 +35,15 @@ class Square
 class Player
 {
   name;
-  1 -- 1 PlayerCard itsCard;
+  1 <- 0..1 PlayerCard itsCard;
   0..1 -> 1 Square locatlion;
 }
 
 class Room
 {
   name;
-  1 -- 1 RoomCard itsCard;
-  0..1 -- * Square;
+  1 <- 0..1 RoomCard itsCard;
+  0..1 -> * Square;
   1 <- * Weapon weaponsIn;
   0..1 <- * Player;
 }
@@ -51,7 +51,7 @@ class Room
 class Weapon
 {
   name;
-  1 -- 1 WeaponCard itsCard;
+  1 <- 0..1 WeaponCard itsCard;
 }
 
 class Card
@@ -111,6 +111,7 @@ class Player
   position.association Player__PlayerCard:itsCard 77,0 40,42;
   position.association Player__Square:location 0,52 110,35;
   position.association Player__Square:locatlion 0,52 110,29;
+  position.association Player__PlayerCard:otsCard 1,0 0,10;
 }
 
 class Room
@@ -122,7 +123,8 @@ class Room
   position.association Room__RoomCard:itsCard 53,0 42,42;
   position.association Room__Weapon 113,14 0,22;
   position.association Player__Room 113,54 0,9;
-  position.association Room__Weapon:weaponsIn 113,0 0,10;
+  position.association Room__Weapon:weaponsIn 113,1 0,10;
+  position.association Room__RoomCard:itsCkard 2,0 21,42;
 }
 
 class Weapon
@@ -154,6 +156,14 @@ class RoomCard
   position 392 196 109 41.9625;
   position.association RoomCard__RoomCard:roleName 65,0 109,41.9625;
   position.association RoomCard__RoomCard:roleName 49,0 42,0;
+}
+
+class Game
+{
+  position 107 163 109 41;
+  position.association Game__Player 110,10 0,10;
+  position.association Card:solution__Game 103,0 0,10;
+  position.association Game__Player:players 110,35 0,0;
 }
 
 class Game

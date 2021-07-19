@@ -1,1 +1,165 @@
-http://try.umple.org/?text=class%20Board%0A%7B%0A%20%201%20--%20*%20Square%3B%0A%20%201%20--%201%20Game%3B%0A%7D%0A%0Aclass%20Square%0A%7B%0A%7D%0A%0Aclass%20Player%0A%7B%0A%20%20name%3B%0A%20%201%20--%201%20PlayerCard%20itsCard%3B%0A%20%201%20--%201%20Square%3B%0A%7D%0A%0Aclass%20Room%0A%7B%0A%20%20name%3B%0A%20%201%20--%201%20RoomCard%20itsCard%3B%0A%20%201%20--%20*%20Square%3B%0A%20%201%20--%20*%20Weapon%20weaponsIn%3B%0A%20%201%20--%20*%20Player%3B%0A%7D%0A%0Aclass%20Weapon%0A%7B%0A%20%20name%3B%0A%20%201%20--%201%20WeaponCard%20itsCard%3B%0A%7D%0A%0Aclass%20Card%0A%7B%0A%20%201%20--%201%20Player%20holding%3B%0A%7D%0A%0Aclass%20WeaponCard%0A%7B%0A%20%20isA%20Card%3B%0A%7D%0A%0Aclass%20PlayerCard%0A%7B%0A%20%20isA%20Card%3B%0A%7D%0A%0Aclass%20RoomCard%0A%7B%0A%20%20isA%20Card%3B%0A%7D%0A%0Aclass%20Game%0A%7B%0A%20%201%20--%20*%20Player%20players%3B%0A%20%201%20--%20*%20Card%20solution%3B%0A%7D%0A%0A%2F%2F%24%3F%5BEnd_of_model%5D%24%3F%0A%0Anamespace%20-%3B%0A%0A%0Aclass%20Board%0A%7B%0A%20%20position%20160%20314%20109%2041.9625%3B%0A%20%20position.association%20Board__Square%2012%2C42%2062%2C0%3B%0A%20%20position.association%20Board__Player%20109%2C35%200%2C23%3B%0A%20%20position.association%20Board__Card%20100%2C0%200%2C30%3B%0A%20%20position.association%20Board__Card%3Asolution%20103%2C0%200%2C10%3B%0A%20%20position.association%20Board__Game%2049%2C0%2035%2C28%3B%0A%7D%0A%0Aclass%20Square%0A%7B%0A%20%20position%20155%20401%20109%2041.9625%3B%0A%7D%0A%0Aclass%20Player%0A%7B%0A%20%20position%20651%20402%20112.4%2058.9625%3B%0A%20%20position.association%20Player__PlayerCard%2077%2C0%2051%2C42%3B%0A%20%20position.association%20Player__Square%200%2C40%20110%2C35%3B%0A%20%20position.association%20Player__Room%200%2C16%20113%2C47%3B%0A%20%20position.association%20Player__PlayerCard%3AplayerCard%2039%2C0%200%2C10%3B%0A%20%20position.association%20Player__PlayerCard%3AtheirCard%2084%2C0%2049%2C42%3B%0A%20%20position.association%20Player__PlayerCard%3AitsCard%2077%2C0%2040%2C42%3B%0A%7D%0A%0Aclass%20Room%0A%7B%0A%20%20position%20373%20303%20112.4%2058.9625%3B%0A%20%20position.association%20Room__RoomCard%2044%2C0%2044%2C42%3B%0A%20%20position.association%20Room__Square%200%2C52%20103%2C0%3B%0A%20%20position.association%20Room__Room%3AroleName%2069%2C0%20112.4%2C23%3B%0A%20%20position.association%20Room__RoomCard%3AitsCard%2053%2C0%2042%2C42%3B%0A%20%20position.association%20Room__Weapon%20113%2C14%200%2C22%3B%0A%20%20position.association%20Player__Room%20113%2C54%200%2C10%3B%0A%20%20position.association%20Room__Weapon%3AweaponsIn%20113%2C3%200%2C10%3B%0A%7D%0A%0Aclass%20Weapon%0A%7B%0A%20%20position%20530%20293%20112.4%2058.9625%3B%0A%20%20position.association%20Weapon__WeaponCard%2043%2C0%2054%2C42%3B%0A%20%20position.association%20Weapon__WeaponCard%3AitsCard%2030%2C0%2047%2C42%3B%0A%7D%0A%0Aclass%20Card%0A%7B%0A%20%20position%20535%2082%20109%2041%3B%0A%20%20position.association%20Card__Player%2082%2C42%200%2C0%3B%0A%20%20position.association%20Card__Player%3Aholding%20110%2C40%2013%2C0%3B%0A%20%20%7D%0A%0Aclass%20WeaponCard%0A%7B%0A%20%20position%20522%20223%20109%2041.9625%3B%0A%7D%0A%0Aclass%20PlayerCard%0A%7B%0A%20%20position%20691%20193%20109%2041.9625%3B%0A%20%20%7D%0A%0Aclass%20RoomCard%0A%7B%0A%20%20position%20392%20196%20109%2041.9625%3B%0A%20%20position.association%20RoomCard__RoomCard%3AroleName%2065%2C0%20109%2C41.9625%3B%0A%20%20position.association%20RoomCard__RoomCard%3AroleName%2049%2C0%2042%2C0%3B%0A%7D%0A%0Aclass%20Game%0A%7B%0A%20%20position%20107%20163%20109%2041%3B%0A%20%20position.association%20Game__Player%20110%2C10%200%2C10%3B%0A%20%20position.association%20Card%3Asolution__Game%20110%2C10%200%2C10%3B%0A%20%20position.association%20Game__Player%3Aplayers%20110%2C10%200%2C10%3B%0A%7D
+Link (use this if it works, should auto update if changed):
+https://cruise.umple.org/umpleonline/umple.php?model=210719dj0nu5bgp28l
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Sorce (backup incase link fails):
+class Board
+{
+  0..1 -> * Square;
+  1 <- 0..1 Game;
+}
+
+class Square
+{
+}
+
+class Player
+{
+  name;
+  1 -- 1 PlayerCard itsCard;
+  0..1 -> 1 Square locatlion;
+}
+
+class Room
+{
+  name;
+  1 -- 1 RoomCard itsCard;
+  0..1 -- * Square;
+  1 <- * Weapon weaponsIn;
+  0..1 <- * Player;
+}
+
+class Weapon
+{
+  name;
+  1 -- 1 WeaponCard itsCard;
+}
+
+class Card
+{
+  * <- 0..1 Player holding;
+}
+
+class WeaponCard
+{
+  isA Card;
+}
+
+class PlayerCard
+{
+  isA Card;
+}
+
+class RoomCard
+{
+  isA Card;
+}
+
+class Game
+{
+  0..1 -> * Player players;
+  0..1 -> * Card solution;
+}
+
+//$?[End_of_model]$?
+
+namespace -;
+
+
+class Board
+{
+  position 160 314 109 41.9625;
+  position.association Board__Square 12,42 62,0;
+  position.association Board__Player 109,35 0,23;
+  position.association Board__Card 100,0 0,30;
+  position.association Board__Card:solution 103,0 0,10;
+  position.association Board__Game 49,0 35,28;
+}
+
+class Square
+{
+  position 155 401 109 41.9625;
+}
+
+class Player
+{
+  position 669 410 112.4 58.9625;
+  position.association Player__PlayerCard 77,0 51,42;
+  position.association Player__Square 0,40 110,35;
+  position.association Player__Room 0,16 113,47;
+  position.association Player__PlayerCard:playerCard 39,0 0,10;
+  position.association Player__PlayerCard:theirCard 84,0 49,42;
+  position.association Player__PlayerCard:itsCard 77,0 40,42;
+  position.association Player__Square:location 0,52 110,35;
+  position.association Player__Square:locatlion 0,52 110,29;
+}
+
+class Room
+{
+  position 373 303 112.4 58.9625;
+  position.association Room__RoomCard 44,0 44,42;
+  position.association Room__Square 0,52 103,0;
+  position.association Room__Room:roleName 69,0 112.4,23;
+  position.association Room__RoomCard:itsCard 53,0 42,42;
+  position.association Room__Weapon 113,14 0,22;
+  position.association Player__Room 113,54 0,9;
+  position.association Room__Weapon:weaponsIn 113,0 0,10;
+}
+
+class Weapon
+{
+  position 560 301 112.4 58.9625;
+  position.association Weapon__WeaponCard 43,0 54,42;
+  position.association Weapon__WeaponCard:itsCard 30,0 47,42;
+}
+
+class Card
+{
+  position 535 82 109 41;
+  position.association Card__Player 82,42 0,0;
+  position.association Card__Player:holding 109,40 34,0;
+  }
+
+class WeaponCard
+{
+  position 522 223 109 41.9625;
+}
+
+class PlayerCard
+{
+  position 691 193 109 41.9625;
+  }
+
+class RoomCard
+{
+  position 392 196 109 41.9625;
+  position.association RoomCard__RoomCard:roleName 65,0 109,41.9625;
+  position.association RoomCard__RoomCard:roleName 49,0 42,0;
+}
+
+class Game
+{
+  position 107 163 109 41;
+  position.association Game__Player 110,10 0,10;
+  position.association Card:solution__Game 103,0 0,10;
+  position.association Game__Player:players 110,35 0,0;
+}

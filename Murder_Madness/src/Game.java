@@ -235,11 +235,6 @@ public class Game {
 		return wasSet;
 	}
 
-	/* Code from template association_MinimumNumberOfMethod */
-	public static int minimumNumberOfCharacters() {
-		return 0;
-	}
-
 	/* Code from template association_AddUnidirectionalMany */
 	public boolean addCharacter(Character aCharacter) {
 		boolean wasAdded = false;
@@ -260,40 +255,6 @@ public class Game {
 		return wasRemoved;
 	}
 
-	/* Code from template association_AddIndexControlFunctions */
-	public boolean addCharacterAt(Character aCharacter, int index) {
-		boolean wasAdded = false;
-		if (addCharacter(aCharacter)) {
-			if (index < 0) {
-				index = 0;
-			}
-			if (index > numberOfCharacters()) {
-				index = numberOfCharacters() - 1;
-			}
-			characters.remove(aCharacter);
-			characters.add(index, aCharacter);
-			wasAdded = true;
-		}
-		return wasAdded;
-	}
-
-	public boolean addOrMoveCharacterAt(Character aCharacter, int index) {
-		boolean wasAdded = false;
-		if (characters.contains(aCharacter)) {
-			if (index < 0) {
-				index = 0;
-			}
-			if (index > numberOfCharacters()) {
-				index = numberOfCharacters() - 1;
-			}
-			characters.remove(aCharacter);
-			characters.add(index, aCharacter);
-			wasAdded = true;
-		} else {
-			wasAdded = addCharacterAt(aCharacter, index);
-		}
-		return wasAdded;
-	}
 
 	/* Code from template association_SetUnidirectionalOne */
 	public boolean setSolution(Solution aNewSolution) {
@@ -324,13 +285,4 @@ public class Game {
 		}
 		return wasSet;
 	}
-
-	public void delete() {
-		board = null;
-		characters.clear();
-		solution = null;
-		accusation = null;
-		suggestion = null;
-	}
-
 }

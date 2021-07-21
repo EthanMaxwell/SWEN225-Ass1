@@ -32,7 +32,7 @@ class Square
   boolean accessible;
 }
 
-class Player
+class Character
 {
   name;
   public void move(Square distination){
@@ -65,10 +65,10 @@ class WeaponCard
   0..1 -> 1 Weapon itsCard;
 }
 
-class PlayerCard
+class CharacterCard
 {
   isA Card;
-  0..1 -> 1 Player itsCard;
+  0..1 -> 1 Character itsCard;
 }
 
 class RoomCard
@@ -80,7 +80,7 @@ class RoomCard
 class Game
 {
   0..1 -> 1 Board board;
-  0..1 -> * Player players;
+  0..1 -> * Character characters;
   0..1 -> 1 Solution;
   0..1 -> 1 Accusation;
   0..1 -> 1 Suggestion;
@@ -90,7 +90,7 @@ class Set
 {
   0..1 -> 1 RoomCard;
   0..1 -> 1 WeaponCard;
-  0..1 -> 1 PlayerCard;
+  0..1 -> 1 CharacterCard;
 }
 
 class Solution
@@ -116,7 +116,7 @@ class Board
 {
   position 64 250 109 41.9625;
   position.association Board__Square 25,62 62,0;
-  position.association Board__Player 109,35 0,23;
+  position.association Board__Character 109,35 0,23;
   position.association Board__Card 100,0 0,30;
   position.association Board__Card:solution 103,0 0,10;
   position.association Board__Game 49,0 47,62;
@@ -129,21 +129,21 @@ class Square
   position 111 441 154.413 78.9625;
 }
 
-class Player
+class Character
 {
   position 585 412 46.9531 162.5;
-  position.association Player__PlayerCard 77,0 51,42;
-  position.association Player__Square 0,40 110,35;
-  position.association Player__Room 0,16 113,47;
-  position.association Player__PlayerCard:playerCard 39,0 0,10;
-  position.association Player__PlayerCard:theirCard 84,0 49,42;
-  position.association Player__PlayerCard:itsCard 112,0 40,42;
-  position.association Player__Square:location 0,52 155,58;
-  position.association Player__Square:locatlion 0,59 147,32;
-  position.association Player__PlayerCard:otsCard 1,0 0,10;
-  position.association Player__Square:locatgion 0,10 155,24;
-  position.association Card:hand__Player 65,0 97,42;
-  position.association Player__Room:inRoom 0,10 94,58;
+  position.association Character__CharacterCard 77,0 51,42;
+  position.association Character__Square 0,40 110,35;
+  position.association Character__Room 0,16 113,47;
+  position.association Character__CharacterCard:characterCard 39,0 0,10;
+  position.association Character__CharacterCard:theirCard 84,0 49,42;
+  position.association Character__CharacterCard:itsCard 112,0 40,42;
+  position.association Character__Square:location 0,52 155,58;
+  position.association Character__Square:locatlion 0,59 147,32;
+  position.association Character__CharacterCard:otsCard 1,0 0,10;
+  position.association Character__Square:locatgion 0,10 155,24;
+  position.association Card:hand__Character 65,0 97,42;
+  position.association Character__Room:inRoom 0,10 94,58;
 }
 
 class Room
@@ -154,7 +154,7 @@ class Room
   position.association Room__Room:roleName 69,0 112.4,23;
   position.association Room__RoomCard:itsCard 53,0 42,42;
   position.association Room__Weapon 113,14 0,22;
-  position.association Player__Room 88,59 15,0;
+  position.association Character__Room 88,59 15,0;
   position.association Room__Weapon:weaponsIn 113,1 0,10;
   position.association Room__RoomCard:itsCkard 2,0 21,42;
   position.association Room__Square:squares 0,10 109,0;
@@ -172,8 +172,8 @@ class Weapon
 class Card
 {
   position 535 82 109 41;
-  position.association Card__Player 82,42 0,0;
-  position.association Card__Player:holding 87,42 71,0;
+  position.association Card__Character 82,42 0,0;
+  position.association Card__Character:holding 87,42 71,0;
   }
 
 class WeaponCard
@@ -182,10 +182,10 @@ class WeaponCard
   position.association Weapon:itsCard__WeaponCard 52,42 30,0;
 }
 
-class PlayerCard
+class CharacterCard
 {
   position 671 192 109 61.9625;
-    position.association Player:itsCard__PlayerCard 0,30 96,0;
+    position.association Character:itsCard__CharacterCard 0,30 96,0;
 }
 
 class RoomCard
@@ -199,8 +199,8 @@ class RoomCard
 class Game
 {
   position 34 60 109 42.5868;
-  position.association Game__Player 110,10 0,10;
-  position.association Game__Player:players 110,35 9,0;
+  position.association Game__Character 110,10 0,10;
+  position.association Game__Character:characters 110,35 9,0;
   position.association Board:board__Game 41,42 30,0;
   position.association Game__Solution 110,4 0,34;
   position.association Accusation__Game 110,10 0,10;
@@ -210,7 +210,7 @@ class Game
 class Set
 {
   position 420 47 109 42.5868;
-  position.association PlayerCard__Set 110,15 0,10;
+  position.association CharacterCard__Set 110,15 0,10;
   position.association RoomCard__Set 0,10 110,0;
   position.association Set__WeaponCard 109,10 3,0;
 }
@@ -233,8 +233,8 @@ class Suggestion
 class Game
 {
   position 90 92 109 61.9625;
-  position.association Game__Player 110,10 0,10;
+  position.association Game__Character 110,10 0,10;
   position.association Card:solution__Game 110,0 0,10;
-  position.association Game__Player:players 110,35 9,0;
+  position.association Game__Character:characters 110,35 9,0;
   position.association Board:board__Game 41,42 30,0;
 }

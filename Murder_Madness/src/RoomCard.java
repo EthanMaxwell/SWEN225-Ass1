@@ -1,57 +1,49 @@
-/*PLEASE DO NOT EDIT THIS CODE*/
-/*This code was generated using the UMPLE 1.31.0.5692.1a9e80997 modeling language!*/
+/**
+ * A card that represents a room
+ * 
+ * @author Runtime Terror
+ */
+public class RoomCard implements Card {
 
+	// ------------------------
+	// MEMBER VARIABLES
+	// ------------------------
 
+	// RoomCard Associations
+	private Room room;
 
-// line 51 "model.ump"
-// line 169 "model.ump"
-public class RoomCard extends Card
-{
+	// ------------------------
+	// CONSTRUCTOR
+	// ------------------------
 
-  //------------------------
-  // MEMBER VARIABLES
-  //------------------------
+	public RoomCard(Room aroom) {
+		super();
+		if (!setroom(aroom)) {
+			throw new RuntimeException(
+					"Unable to create RoomCard due to aroom. See http://manual.umple.org?RE002ViolationofAssociationMultiplicity.html");
+		}
+	}
 
-  //RoomCard Associations
-  private Room itsCard;
+	// ------------------------
+	// INTERFACE
+	// ------------------------
+	/* Code from template association_GetOne */
+	public Room getroom() {
+		return room;
+	}
 
-  //------------------------
-  // CONSTRUCTOR
-  //------------------------
+	/* Code from template association_SetUnidirectionalOne */
+	public boolean setroom(Room aNewroom) {
+		boolean wasSet = false;
+		if (aNewroom != null) {
+			room = aNewroom;
+			wasSet = true;
+		}
+		return wasSet;
+	}
 
-  public RoomCard(Room aItsCard)
-  {
-    super();
-    if (!setItsCard(aItsCard))
-    {
-      throw new RuntimeException("Unable to create RoomCard due to aItsCard. See http://manual.umple.org?RE002ViolationofAssociationMultiplicity.html");
-    }
-  }
-
-  //------------------------
-  // INTERFACE
-  //------------------------
-  /* Code from template association_GetOne */
-  public Room getItsCard()
-  {
-    return itsCard;
-  }
-  /* Code from template association_SetUnidirectionalOne */
-  public boolean setItsCard(Room aNewItsCard)
-  {
-    boolean wasSet = false;
-    if (aNewItsCard != null)
-    {
-      itsCard = aNewItsCard;
-      wasSet = true;
-    }
-    return wasSet;
-  }
-
-  public void delete()
-  {
-    itsCard = null;
-    super.delete();
-  }
+	public String toString() {
+		return room.getName() + " card";
+	}
 
 }

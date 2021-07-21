@@ -1,57 +1,49 @@
-/*PLEASE DO NOT EDIT THIS CODE*/
-/*This code was generated using the UMPLE 1.31.0.5692.1a9e80997 modeling language!*/
+/**
+ * A card that represents a weapon
+ * 
+ * @author Runtime Terror
+ */
+public class WeaponCard implements Card {
 
+	// ------------------------
+	// MEMBER VARIABLES
+	// ------------------------
 
+	// WeaponCard Associations
+	private Weapon weapon;
 
-// line 39 "model.ump"
-// line 157 "model.ump"
-public class WeaponCard extends Card
-{
+	// ------------------------
+	// CONSTRUCTOR
+	// ------------------------
 
-  //------------------------
-  // MEMBER VARIABLES
-  //------------------------
+	public WeaponCard(Weapon aWeapon) {
+		super();
+		if (!setWeapon(aWeapon)) {
+			throw new RuntimeException(
+					"Unable to create WeaponCard due to aWeapon. See http://manual.umple.org?RE002ViolationofAssociationMultiplicity.html");
+		}
+	}
 
-  //WeaponCard Associations
-  private Weapon itsCard;
+	// ------------------------
+	// INTERFACE
+	// ------------------------
+	/* Code from template association_GetOne */
+	public Weapon getWeapon() {
+		return weapon;
+	}
 
-  //------------------------
-  // CONSTRUCTOR
-  //------------------------
+	/* Code from template association_SetUnidirectionalOne */
+	public boolean setWeapon(Weapon aNewWeapon) {
+		boolean wasSet = false;
+		if (aNewWeapon != null) {
+			weapon = aNewWeapon;
+			wasSet = true;
+		}
+		return wasSet;
+	}
 
-  public WeaponCard(Weapon aItsCard)
-  {
-    super();
-    if (!setItsCard(aItsCard))
-    {
-      throw new RuntimeException("Unable to create WeaponCard due to aItsCard. See http://manual.umple.org?RE002ViolationofAssociationMultiplicity.html");
-    }
-  }
-
-  //------------------------
-  // INTERFACE
-  //------------------------
-  /* Code from template association_GetOne */
-  public Weapon getItsCard()
-  {
-    return itsCard;
-  }
-  /* Code from template association_SetUnidirectionalOne */
-  public boolean setItsCard(Weapon aNewItsCard)
-  {
-    boolean wasSet = false;
-    if (aNewItsCard != null)
-    {
-      itsCard = aNewItsCard;
-      wasSet = true;
-    }
-    return wasSet;
-  }
-
-  public void delete()
-  {
-    itsCard = null;
-    super.delete();
-  }
+	public String toString() {
+		return weapon.getName() + " card";
+	}
 
 }

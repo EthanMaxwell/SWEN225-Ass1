@@ -4,4 +4,6 @@
  * @author Runtime Terror
  */
 public interface Card {
+	
+	
 }

@@ -1,4 +1,6 @@
+import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.util.*;
 
 /**
@@ -39,9 +41,8 @@ public class Game {
 	 * ready to go and then start it up
 	 */
 	public Game() {
-		//playerNum = 4; // Just assume 4 players for now (change later)
 		playerNum = Integer.parseInt(restrictedAsk("How many players? (3 or 4) ",
-				"Error - please enter 3 to 6", new ArrayList<String>(Arrays.asList("3", "4"))));
+				"Error - please enter 3 or 4", Arrays.asList("3", "4")));
 
 		createRooms();
 
@@ -68,13 +69,19 @@ public class Game {
 	 * @return
 	 */
 
-	public String restrictedAsk(String question, String errorMsg, ArrayList<String> restrictedValues) {
+	public String restrictedAsk(String question, String errorMsg, List<String> restrictedValues) {
 		boolean found = false;
 		String result = "";
+		final BufferedReader input =
+				new BufferedReader(new InputStreamReader(System.in));
 		while (!found) {
 			System.out.print(question);
-			Scanner sc = new Scanner(System.in);
-			result = sc.nextLine();
+			try {
+				result = input.readLine();
+			} catch(IOException e) {
+				System.err.println("I/O Error - " + e.getMessage());
+			}
+			
 			for (String i : restrictedValues) {
 				if (result.equals(i)) {
 					found = true;
@@ -84,7 +91,6 @@ public class Game {
 				System.out.println(errorMsg);
 				System.out.println("Valid Inputs : " + restrictedValues);
 			}
-			sc.close();
 		}
 		
 		return result;

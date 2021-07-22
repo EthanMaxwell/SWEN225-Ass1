@@ -49,7 +49,7 @@ public class CharacterCard implements Card {
 		}
 		return wasSet;
 	}
-	
+
 	public String toString() {
 		return character.getName() + " card";
 	}

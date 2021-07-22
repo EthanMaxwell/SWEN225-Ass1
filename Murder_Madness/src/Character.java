@@ -12,6 +12,8 @@ public class Character {
 
 	// Character Attributes
 	private String name;
+	private boolean isOut = false; // Record if this player is actively taking turns (out)
+
 
 	// Character Associations
 	private Square location;
@@ -82,9 +84,23 @@ public class Character {
 		return inRoom;
 	}
 
-	public boolean hasInRoom() {
+	public boolean isInRoom() {
 		boolean has = inRoom != null;
 		return has;
+	}
+	
+	/**
+	 * @return if the character is currently not taking turns (is out)
+	 */
+	public boolean isOut() {
+		return isOut;
+	}
+
+	/**
+	 * Set this player as out so they can not take turns anymore
+	 */
+	public void setOut() {
+		this.isOut = true;
 	}
 
 	/**

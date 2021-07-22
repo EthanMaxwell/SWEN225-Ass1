@@ -84,8 +84,11 @@ public class Game {
 				System.out.println(errorMsg);
 				System.out.println("Valid Inputs : " + restrictedValues);
 			}
+			sc.close();
 		}
+		
 		return result;
+		
 	}
 
 	/**
@@ -144,6 +147,26 @@ public class Game {
 					square.setAccessible(false);
 					square.setCharacter(" P "); // To be print for testing
 				}
+				else if(x>=5 && x<=6 && y>=11 &&y<=12 ) {
+					Square square = board.getGameSquare(x, y);				
+					square.setAccessible(false);
+					square.setCharacter(" W "); // To be print for testing
+				}
+				else if(x>=11 && x<=12 && y>=5 &&y<=6 ) {
+					Square square = board.getGameSquare(x, y);				
+					square.setAccessible(false);
+					square.setCharacter(" W "); // To be print for testing
+				}
+				else if(x>=17 && x<=18 && y>=11 &&y<=12 ) {
+					Square square = board.getGameSquare(x, y);				
+					square.setAccessible(false);
+					square.setCharacter(" W "); // To be print for testing
+				}
+				else if(x>=11 && x<=12 && y>=17 &&y<=18 ) {
+					Square square = board.getGameSquare(x, y);				
+					square.setAccessible(false);
+					square.setCharacter(" W "); // To be print for testing
+				}
 			}
 		}
 	}
@@ -153,6 +176,8 @@ public class Game {
 	 */
 	private void createCharacters() {
 		characters = new ArrayList<Character>();
+		if (playerNum==4||playerNum==3)
+		{
 		characters.add(new Character("Lucilla", board.getGameSquare(11, 1)));
 		board.getGameSquare(11,1).setCharacter("Lu|");
 		characters.add(new Character("Bert", board.getGameSquare(1, 9)));
@@ -161,6 +186,12 @@ public class Game {
 		board.getGameSquare(9,22).setCharacter("Ma|");
 		characters.add(new Character("Percy", board.getGameSquare(22, 14)));
 		board.getGameSquare(22,14).setCharacter("Pe|");
+		}
+		else
+		{
+			throw new RuntimeException(
+					"Unable to create Board. See http://manual.umple.org?RE002ViolationofAssociationMultiplicity.html");		
+		}
 	}
 
 	/**
@@ -214,7 +245,7 @@ public class Game {
 		Collections.shuffle(allCards);
 		// Deal cards to the players
 		for (int i = 0; i < allCards.size(); i++) {
-			// If less player then characters, some character get not cards
+			// If less player then characters, some character get no cards
 			characters.get(i % playerNum).addCard(allCards.get(i));
 		}
 	}

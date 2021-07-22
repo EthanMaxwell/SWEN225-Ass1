@@ -14,6 +14,7 @@ public class Solution extends Set {
 
 	public Solution(RoomCard aRoomCard, WeaponCard aWeaponCard, CharacterCard aCharacterCard) {
 		super(aRoomCard, aWeaponCard, aCharacterCard);
+		
 	}
 
 	// ------------------------

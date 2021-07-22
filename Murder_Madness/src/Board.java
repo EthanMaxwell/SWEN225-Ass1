@@ -130,21 +130,17 @@ public class Board {
 
 	/**
 	 * this is for testing only and should be updated
-	 * @param board
-	 * @return
 	 */
-	public String printBoard(Board board){
+	public void printBoard(){
 		String print = "";
 		for (int y = 0; y < SIZE; y++) {
 			String temp = "";
 			for (int x = 0; x < SIZE; x++) {
-				temp += board.getGameSquare(x, y).getCharacter();
-//				int size  = y * SIZE + x;
-//				System.out.println( x + " : "+ y + " Size: " + size);
+				temp += getGameSquare(x, y).getCharacter();
 			}
 			print += temp;
 			print += "\n";
 		}
-		return print;
+		System.out.println(print);
 	}
 }

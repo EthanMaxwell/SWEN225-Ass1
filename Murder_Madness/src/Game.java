@@ -1,3 +1,4 @@
+import java.io.IOException;
 import java.util.*;
 
 /**
@@ -27,7 +28,6 @@ public class Game {
 	 */
 	public static void main(String[] args) {
 		Game game = new Game();
-		game.test(); //for testing only
 	}
 
 	// ------------------------
@@ -39,7 +39,9 @@ public class Game {
 	 * ready to go and then start it up
 	 */
 	public Game() {
-		playerNum = 4; // Just assume 4 players for now (change later)
+		//playerNum = 4; // Just assume 4 players for now (change later)
+		playerNum = Integer.parseInt(restrictedAsk("How many players? (3 or 4) ",
+				"Error - please enter 3 to 6", new ArrayList<String>(Arrays.asList("3", "4"))));
 
 		createRooms();
 
@@ -52,15 +54,39 @@ public class Game {
 		createCards();
 
 		System.out.println("All setup :^)");
+
+		board.printBoard();
 		// TODO The game should start executing for here
 	}
-	/**
-	 * This method is for testing only and should not included in the final code
-	 */
-	public void test(){
-		System.out.println(board.printBoard(board));
-	}
 
+
+	/**
+	 * Ask input from the users but the input is restricted values
+	 * @param question
+	 * @param errorMsg
+	 * @param restrictedValues
+	 * @return
+	 */
+
+	public String restrictedAsk(String question, String errorMsg, ArrayList<String> restrictedValues) {
+		boolean found = false;
+		String result = "";
+		while (!found) {
+			System.out.print(question);
+			Scanner sc = new Scanner(System.in);
+			result = sc.nextLine();
+			for (String i : restrictedValues) {
+				if (result.equals(i)) {
+					found = true;
+				}
+			}
+			if (!found) {
+				System.out.println(errorMsg);
+				System.out.println("Valid Inputs : " + restrictedValues);
+			}
+		}
+		return result;
+	}
 
 	/**
 	 * Create all the rooms

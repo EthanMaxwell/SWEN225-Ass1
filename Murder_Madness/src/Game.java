@@ -26,7 +26,8 @@ public class Game {
 	 * @param args
 	 */
 	public static void main(String[] args) {
-		new Game();
+		Game game = new Game();
+		game.test(); //for testing only
 	}
 
 	// ------------------------
@@ -53,6 +54,13 @@ public class Game {
 		System.out.println("All setup :^)");
 		// TODO The game should start executing for here
 	}
+	/**
+	 * This method is for testing only and should not included in the final code
+	 */
+	public void test(){
+		System.out.println(board.printBoard(board));
+	}
+
 
 	/**
 	 * Create all the rooms
@@ -80,30 +88,35 @@ public class Game {
 					Square square = board.getGameSquare(x, y);
 					square.setPartOf(rooms.get(0));
 					square.setAccessible(false);
+					square.setCharacter(" H "); // To be print for testing
 				}
 				// Manic Manor
 				else if (x >= 17 && x <= 21 && y >= 2 && y <= 6) {
 					Square square = board.getGameSquare(x, y);
 					square.setPartOf(rooms.get(1));
 					square.setAccessible(false);
+					square.setCharacter(" M "); // To be print for testing
 				}
 				// Villa Celia
 				else if (x >= 9 && x <= 14 && y >= 10 && y <= 13) {
 					Square square = board.getGameSquare(x, y);
 					square.setPartOf(rooms.get(2));
 					square.setAccessible(false);
+					square.setCharacter(" V "); // To be print for testing
 				}
 				// Calamity Castle
 				else if (x >= 2 && x <= 6 && y >= 17 && y <= 21) {
 					Square square = board.getGameSquare(x, y);
 					square.setPartOf(rooms.get(3));
 					square.setAccessible(false);
+					square.setCharacter(" C "); // To be print for testing
 				}
 				// Peril Palace
-				else if (x >= 17 && x <= 21 && y >= 17 && y <= 22) {
+				else if (x >= 17 && x <= 21 && y >= 17 && y <= 21) {
 					Square square = board.getGameSquare(x, y);
 					square.setPartOf(rooms.get(4));
 					square.setAccessible(false);
+					square.setCharacter(" P "); // To be print for testing
 				}
 			}
 		}
@@ -115,9 +128,13 @@ public class Game {
 	private void createCharacters() {
 		characters = new ArrayList<Character>();
 		characters.add(new Character("Lucilla", board.getGameSquare(11, 1)));
+		board.getGameSquare(11,1).setCharacter("Lu|");
 		characters.add(new Character("Bert", board.getGameSquare(1, 9)));
+		board.getGameSquare(1,9).setCharacter("Be|");
 		characters.add(new Character("Malina", board.getGameSquare(22, 9)));
+		board.getGameSquare(9,22).setCharacter("Ma|");
 		characters.add(new Character("Percy", board.getGameSquare(22, 14)));
+		board.getGameSquare(22,14).setCharacter("Pe|");
 	}
 
 	/**

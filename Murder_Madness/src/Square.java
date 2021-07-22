@@ -14,12 +14,18 @@ public class Square {
 	// Square Associations
 	private Room partOf;
 
+	//Character representing each square for printing
+	private String Character;
+
 	// ------------------------
 	// CONSTRUCTOR
 	// ------------------------
 
 	public Square(boolean aAccessible) {
 		accessible = aAccessible;
+	}
+	public Square(boolean aAccessible, String character) {
+		accessible = aAccessible; Character = character;
 	}
 
 	// ------------------------
@@ -58,6 +64,9 @@ public class Square {
 	public void delete() {
 		partOf = null;
 	}
+	public void setCharacter(String character){Character = character;}
+
+	public String getCharacter(){return Character;}
 
 	public String toString() {
 		return super.toString() + "[" + "accessible" + ":" + getAccessible() + "]"

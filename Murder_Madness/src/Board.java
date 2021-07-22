@@ -22,7 +22,7 @@ public class Board {
 	public Board() {
 		gameSquares = new ArrayList<Square>();
 		for (int i = 0; i < Math.pow(SIZE, 2); i++) {
-			gameSquares.add(new Square(true));
+			gameSquares.add(new Square(true, "__|"));
 		}
 	}
 
@@ -36,7 +36,7 @@ public class Board {
 	}
 
 	public Square getGameSquare(int x, int y) {
-		Square aGameSquare = gameSquares.get(x * SIZE + y);
+		Square aGameSquare = gameSquares.get(y * SIZE + x);
 		return aGameSquare;
 	}
 
@@ -128,4 +128,23 @@ public class Board {
 		gameSquares.clear();
 	}
 
+	/**
+	 * this is for testing only and should be updated
+	 * @param board
+	 * @return
+	 */
+	public String printBoard(Board board){
+		String print = "";
+		for (int y = 0; y < SIZE; y++) {
+			String temp = "";
+			for (int x = 0; x < SIZE; x++) {
+				temp += board.getGameSquare(x, y).getCharacter();
+//				int size  = y * SIZE + x;
+//				System.out.println( x + " : "+ y + " Size: " + size);
+			}
+			print += temp;
+			print += "\n";
+		}
+		return print;
+	}
 }

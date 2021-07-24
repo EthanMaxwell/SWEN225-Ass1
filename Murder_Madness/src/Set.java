@@ -85,5 +85,9 @@ public class Set {
 		weaponCard = null;
 		characterCard = null;
 	}
+	public String toString()
+	{
+		return roomCard.toString()+ weaponCard.toString()+characterCard.toString();
+	}
 
 }

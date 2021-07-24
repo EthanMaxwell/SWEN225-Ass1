@@ -32,6 +32,9 @@ public class Character {
 		}
 		hand = new ArrayList<Card>();
 	}
+	public Character(String aName) {
+		name=aName;
+	}
 
 	// ------------------------
 	// INTERFACE

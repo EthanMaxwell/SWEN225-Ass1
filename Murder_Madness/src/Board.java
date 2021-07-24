@@ -22,13 +22,20 @@ public class Board {
 	public Board() {
 		gameSquares = new ArrayList<Square>();
 		for (int i = 0; i < Math.pow(SIZE, 2); i++) {
-			gameSquares.add(new Square(true, "__|"));
+			gameSquares.add(new Square(String.valueOf((char) (getX(i) + 'a')) + (getY(i))));
 		}
 	}
 
 	// ------------------------
 	// INTERFACE
 	// ------------------------
+	public int getX(int index) {
+		return index % SIZE;
+	}
+
+	public int getY(int index) {
+		return index / SIZE;
+	}
 	/* Code from template association_GetMany */
 	public Square getGameSquare(int index) {
 		Square aGameSquare = gameSquares.get(index);
@@ -38,6 +45,11 @@ public class Board {
 	public Square getGameSquare(int x, int y) {
 		Square aGameSquare = gameSquares.get(y * SIZE + x);
 		return aGameSquare;
+	}
+	public boolean isGameSquare(int x, int y) {
+		if(x < 0 || y < 0 || x >= SIZE || y >= SIZE || !getGameSquare(x, y).isAccessible())
+			return false;
+		return true;
 	}
 
 	public List<Square> getGameSquares() {
@@ -74,6 +86,15 @@ public class Board {
 		gameSquares.add(aGameSquare);
 		wasAdded = true;
 		return wasAdded;
+	}
+	
+	public Square gotFromCode(String position) {
+		try {
+		return getGameSquare(position.charAt(0) + 'a' - 2, Integer.parseInt(position.substring(1)) - 8);
+		}
+		catch(Exception e) {
+			return null;
+		}
 	}
 
 	public boolean removeGameSquare(Square aGameSquare) {
@@ -131,15 +152,24 @@ public class Board {
 	/**
 	 * this is for testing only and should be updated
 	 */
-	public void printBoard(){
+	public void printBoard(List<Character>characters){
 		String print = "";
 		for (int y = 0; y < SIZE; y++) {
-			String temp = "";
+			String temp = y < 10 ? " " + y : "" + y;
 			for (int x = 0; x < SIZE; x++) {
 				temp += getGameSquare(x, y).getCharacter();
 			}
 			print += temp;
 			print += "\n";
+		}
+		print += " ";
+		for(int i = 0; i < SIZE; i++) {
+			print +=  " " + String.valueOf((char) (i + 'a')) + " ";
+		}
+		for(Character c : characters) {
+			int charPos = gameSquares.indexOf(c.getLocation());
+			charPos = (charPos + getY(charPos)) * 3 + 2;
+			print = print.substring(0, charPos) + c.getName().substring(0, 2) + print.substring(charPos + 2);
 		}
 		System.out.println(print);
 	}

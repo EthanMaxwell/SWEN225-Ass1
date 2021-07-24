@@ -14,11 +14,9 @@ public class Character {
 	private String name;
 	private boolean isOut = false; // Record if this player is actively taking turns (out)
 
-
 	// Character Associations
 	private Square location;
 	private List<Card> hand;
-	private Room inRoom;
 
 	// ------------------------
 	// CONSTRUCTOR
@@ -31,9 +29,6 @@ public class Character {
 					"Unable to create Character due to aLocation. See http://manual.umple.org?RE002ViolationofAssociationMultiplicity.html");
 		}
 		hand = new ArrayList<Card>();
-	}
-	public Character(String aName) {
-		name=aName;
 	}
 
 	// ------------------------
@@ -84,14 +79,14 @@ public class Character {
 
 	/* Code from template association_GetOne */
 	public Room getInRoom() {
-		return inRoom;
+		return location.getPartOf();
 	}
 
 	public boolean isInRoom() {
-		boolean has = inRoom != null;
+		boolean has = location.getPartOf() != null;
 		return has;
 	}
-	
+
 	/**
 	 * @return if the character is currently not taking turns (is out)
 	 */
@@ -100,7 +95,7 @@ public class Character {
 	}
 
 	/**
-	 * Set this player as out so they can not take turns anymore
+	 * CardTriplet this player as out so they can not take turns anymore
 	 */
 	public void setOut() {
 		this.isOut = true;
@@ -115,12 +110,14 @@ public class Character {
 	public boolean setLocation(Square aNewLocation) {
 		boolean wasSet = false;
 		if (aNewLocation != null) {
+			if (location != null && !location.hasPartOf())
+				location.setAccessible(true);
+			aNewLocation.setAccessible(false);
 			location = aNewLocation;
 			wasSet = true;
 		}
 		return wasSet;
 	}
-
 
 	/**
 	 * Add given card to this character hand
@@ -151,19 +148,6 @@ public class Character {
 			wasRemoved = true;
 		}
 		return wasRemoved;
-	}
-
-	/**
-	 * Set if the character is currently in a room
-	 * 
-	 * @param aNewInRoom What to set characters in room status to
-	 * @return If the room change was successful
-	 */
-	public boolean setInRoom(Room aNewInRoom) {
-		boolean wasSet = false;
-		inRoom = aNewInRoom;
-		wasSet = true;
-		return wasSet;
 	}
 
 	public String toString() {

@@ -2,6 +2,8 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.*;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  * 
@@ -18,12 +20,9 @@ public class Game {
 	private List<Character> characters;
 	private List<Room> rooms;
 	private List<Weapon> weapons;
-	private Solution solution;
-	private Accusation accusation;
-	private Suggestion suggestion;
+	private CardTriplet solution;
 	private int playerNum; // Number of people playing the game
 	private boolean gameOver = false; // You can make this global if needed ;^)
-	private Set guessToRefute; 
 
 	/**
 	 * Create a new game object, thus starting the game
@@ -59,8 +58,6 @@ public class Game {
 
 		System.out.println("All setup :^)");
 
-		board.printBoard();
-
 		playGame();
 	}
 
@@ -82,82 +79,101 @@ public class Game {
 	 */
 	private void createBoard() {
 		board = new Board();
-		// Set the squares that are parts of rooms as such
-		for (int x = 0; x < board.boardSize(); x++) {
-			for (int y = 0; y < board.boardSize(); y++) {
+		// CardTriplet the squares that are parts of rooms as such
+		for (int y = 0; y < board.boardSize(); y++) {
+			for (int x = 0; x < board.boardSize(); x++) {
 				// Haunted House
 				if (x >= 2 && x <= 6 && y >= 2 && y <= 6) {
 					Square square = board.getGameSquare(x, y);
 					square.setPartOf(rooms.get(0));
+					rooms.get(0).addSquare(square);
 					square.setAccessible(false);
-					square.setCharacter(" H "); // To be print for testing
 				}
 				// Manic Manor
 				else if (x >= 17 && x <= 21 && y >= 2 && y <= 6) {
 					Square square = board.getGameSquare(x, y);
 					square.setPartOf(rooms.get(1));
+					rooms.get(1).addSquare(square);
+					;
 					square.setAccessible(false);
-					square.setCharacter(" M "); // To be print for testing
 				}
 				// Villa Celia
 				else if (x >= 9 && x <= 14 && y >= 10 && y <= 13) {
 					Square square = board.getGameSquare(x, y);
 					square.setPartOf(rooms.get(2));
+					rooms.get(2).addSquare(square);
+					;
 					square.setAccessible(false);
-					square.setCharacter(" V "); // To be print for testing
 				}
 				// Calamity Castle
 				else if (x >= 2 && x <= 6 && y >= 17 && y <= 21) {
 					Square square = board.getGameSquare(x, y);
 					square.setPartOf(rooms.get(3));
+					rooms.get(3).addSquare(square);
+					;
 					square.setAccessible(false);
-					square.setCharacter(" C "); // To be print for testing
 				}
 				// Peril Palace
 				else if (x >= 17 && x <= 21 && y >= 17 && y <= 21) {
 					Square square = board.getGameSquare(x, y);
 					square.setPartOf(rooms.get(4));
+					rooms.get(4).addSquare(square);
+					;
 					square.setAccessible(false);
-					square.setCharacter(" P "); // To be print for testing
-				} else if (x >= 5 && x <= 6 && y >= 11 && y <= 12) {
+				}
+				// None move-on-to-able squares
+				else if (x >= 5 && x <= 6 && y >= 11 && y <= 12) {
 					Square square = board.getGameSquare(x, y);
 					square.setAccessible(false);
-					square.setCharacter(" W "); // To be print for testing
 				} else if (x >= 11 && x <= 12 && y >= 5 && y <= 6) {
 					Square square = board.getGameSquare(x, y);
 					square.setAccessible(false);
-					square.setCharacter(" W "); // To be print for testing
 				} else if (x >= 17 && x <= 18 && y >= 11 && y <= 12) {
 					Square square = board.getGameSquare(x, y);
 					square.setAccessible(false);
-					square.setCharacter(" W "); // To be print for testing
 				} else if (x >= 11 && x <= 12 && y >= 17 && y <= 18) {
 					Square square = board.getGameSquare(x, y);
 					square.setAccessible(false);
-					square.setCharacter(" W "); // To be print for testing
 				}
 			}
 		}
+		setupDoors();
+	}
+
+	private void setupDoors() {
+		// Setup doors
+		// HH
+		board.getGameSquare(6, 3).setAccessible(true);
+		board.getGameSquare(5, 6).setAccessible(true);
+		// MM
+		board.getGameSquare(17, 5).setAccessible(true);
+		board.getGameSquare(20, 6).setAccessible(true);
+		// VC
+		board.getGameSquare(12, 10).setAccessible(true);
+		board.getGameSquare(14, 11).setAccessible(true);
+		board.getGameSquare(9, 12).setAccessible(true);
+		board.getGameSquare(11, 13).setAccessible(true);
+		// CC
+		board.getGameSquare(3, 17).setAccessible(true);
+		board.getGameSquare(6, 18).setAccessible(true);
+		// PP
+		board.getGameSquare(18, 17).setAccessible(true);
+		board.getGameSquare(17, 20).setAccessible(true);
 	}
 
 	/**
 	 * Create all the game characters and set their starting positions
-	 */ 
+	 */
 	private void createCharacters() {
 		characters = new ArrayList<Character>();
 		if (playerNum == 4 || playerNum == 3) {
 			characters.add(new Character("Lucilla", board.getGameSquare(11, 1)));
-			board.getGameSquare(11, 1).setCharacter("Lu|");
 			characters.add(new Character("Bert", board.getGameSquare(1, 9)));
-			board.getGameSquare(1, 9).setCharacter("Be|");
-			characters.add(new Character("Maline", board.getGameSquare(22, 9)));
-			board.getGameSquare(9, 22).setCharacter("Ma|");
+			characters.add(new Character("Malina", board.getGameSquare(9, 22)));
 			characters.add(new Character("Percy", board.getGameSquare(22, 14)));
-			board.getGameSquare(22, 14).setCharacter("Pe|");
 
 		} else {
-			throw new RuntimeException(
-					"Unable to create Board. See http://manual.umple.org?RE002ViolationofAssociationMultiplicity.html");
+			throw new RuntimeException("Unable to create Board");
 		}
 	}
 
@@ -198,7 +214,7 @@ public class Game {
 		Collections.shuffle(characterCards);
 		Collections.shuffle(weaponCards);
 		// Make solution for bottom card of each list
-		solution = new Solution(roomCards.get(0), weaponCards.get(0), characterCards.get(0));
+		solution = new CardTriplet(roomCards.get(0), weaponCards.get(0), characterCards.get(0));
 		// Remove the solution for the cards
 		roomCards.remove(0);
 		characterCards.remove(0);
@@ -224,8 +240,6 @@ public class Game {
 	 * Make the game loop run
 	 */
 	private void playGame() {
-		 
-
 		// Run game starting from a random player until it's gameOver
 		for (int turnNum = (int) (Math.random() * playerNum); !gameOver; turnNum++) {
 			// Check that at least one player can still take turns
@@ -244,205 +258,40 @@ public class Game {
 					.println("\nIt's now player " + (turnNum % playerNum + 1) + " (" + takingTurn.getName() + ") turn");
 			askForPlayer(turnNum % playerNum);
 
+			board.printBoard(characters);
+
 			// Roll the two dice
 			int diceRoll = (int) (Math.random() * 6) + (int) (Math.random() * 6) + 2;
 			System.out.println("You rolled a " + diceRoll + "!");
-			trySolve();
-          
+
 			// If in a room ask if they want to move or stay
 			if (!takingTurn.isInRoom()
 					|| restrictedAsk("Would you like to stay in your current room?\n 1 - Stay	2 - Move",
-							"Error - please enter 1 or 2", Arrays.asList("1", "2")) == "1") {
-				// movePlayer(); TODO write move player method
+							"Error - please enter 1 or 2", Arrays.asList("1", "2")).equals("2")) {
+				movePlayer(takingTurn, diceRoll);
 			}
 
 			// Check if player is in a room so can make a guess or solve
 			if (takingTurn.isInRoom()) {
 				if (restrictedAsk("Would you like make a guess or attempt to solve?\n 1 - Guess	2 - Solve",
-						"Error - please enter 1 or 2", Arrays.asList("1", "2")) == "1") {
-					// makeGuess() TODO write the make guess method
+						"Error - please enter 1 or 2", Arrays.asList("1", "2")).equals("1")) {
+					makeGuess(takingTurn);
 				} else {
-					// trySolve() TODO write the try solve method
+					if (trySolve(takingTurn)) {
+						System.out.println("Player " + (turnNum % playerNum) + " (" + takingTurn.getName()
+								+ ") Wins! The solution was:");
+						solution.print();
+						gameOver = true;
+					} else {
+						System.out.println("WRONG! You are out");
+						takingTurn.setOut();
+						gameOver = false;
+					}
 				}
 			}
 		}
 	}
-	
-	public void makeGuess()
-	{
-		//Initializing objects to random values cause it wont matter later
-				Room guessedRoom= new Room("Haunted House");
-				Weapon guessedWeapon= new Weapon("Knife");
-				Character guessedCharacter=new Character("Percy");
-				
-				//Prompting to make the guesses
-				int RoomGuess = Integer.parseInt(
-						restrictedAsk("Press 1 for Haunted House, 2 for Manic manor, 3 for Villa Celia,4 for Calamity Castle or 5 for Peril Palace", "Error - please enter values 1 to 5 for respective rooms", Arrays.asList("1","2","3", "4","5")));
-				switch (RoomGuess) {
-				case 1:
-				 guessedRoom = new Room("Haunted House");		 
-				break;
-				case 2:
-					 guessedRoom = new Room("Manic Manor");		
-					break;
-				case 3:
-					 guessedRoom = new Room("Villa Celia");		
-					break;
-				case 4:
-					 guessedRoom = new Room("Calamity Castle");
-					break;
-				case 5:
-					guessedRoom = new Room("Peril Palace");			
-					break;
-					default:
-						System.out.println("Please Enter a Valid Number!");		
-				}
-				
-				int WeaponGuess = Integer.parseInt(
-						restrictedAsk("Press 1 for Broom,2 for Scissors,3 for Knife,4 for Shovel or 5 for iPad", "Error - please enter values 1 to 5 for respective weapons", Arrays.asList("1","2","3", "4","5")));
-				switch (WeaponGuess) {
-				case 1:
-					guessedWeapon = new Weapon("Broom");				 
-				break;
-				case 2:
-					guessedWeapon = new Weapon("Scissors");			
-					break;
-				case 3:
-					guessedWeapon = new Weapon("Knife");			
-					break;
-				case 4:
-					guessedWeapon = new Weapon("Shovel");		
-					break;
-				case 5:
-					guessedWeapon = new Weapon("iPad");		
-					break;
-					default:
-						System.out.println("Please Enter a Valid Number!");		
-				}
-					 
-				int CharacterGuess= Integer.parseInt(
-						restrictedAsk("Press 1 for Lucilla,2 for Bert,3 for Maline,4 for Percy","Error - please enter values 1 to 4 for respective characters", Arrays.asList("1","2","3", "4")));
-				switch (CharacterGuess) {
-				case 1:
-					guessedCharacter = new Character("Lucilla");				 
-				break;
-				case 2:
-					guessedCharacter = new Character("Bert");			
-					break;
-				case 3:
-					guessedCharacter = new Character("Maline");			
-					break;
-				case 4:
-					guessedCharacter = new Character("Percy");					
-					break;
-					default:
-						System.out.println("Please Enter a Valid Number!");		
-				}		
-				//making required objects to check if the attempt was successful
-				RoomCard guessedRoomCard= new RoomCard(guessedRoom);
-				WeaponCard guessedWeaponCard= new WeaponCard(guessedWeapon);
-				CharacterCard guessedCharacterCard= new CharacterCard(guessedCharacter);
-				guessToRefute= new Set(guessedRoomCard,guessedWeaponCard,guessedCharacterCard);
-				
-	}
-		
-	//method that checks for the solve attempt
-	public boolean trySolve()
-	{
-		//Initializing objects to random values cause it wont matter later
-		Room guessedRoom= new Room("Haunted House");
-		Weapon guessedWeapon= new Weapon("Knife");
-		Character guessedCharacter=new Character("Percy");
-		
-		//Prompting the solve attempts
-		int RoomGuess = Integer.parseInt(
-				restrictedAsk("Press 1 for Haunted House, 2 for Manic manor, 3 for Villa Celia,4 for Calamity Castle or 5 for Peril Palace", "Error - please enter values 1 to 5 for respective rooms", Arrays.asList("1","2","3", "4","5")));
-		switch (RoomGuess) {
-		case 1:
-		 guessedRoom = new Room("Haunted House");		 
-		break;
-		case 2:
-			 guessedRoom = new Room("Manic Manor");		
-			break;
-		case 3:
-			 guessedRoom = new Room("Villa Celia");		
-			break;
-		case 4:
-			 guessedRoom = new Room("Calamity Castle");
-			break;
-		case 5:
-			guessedRoom = new Room("Peril Palace");			
-			break;
-			default:
-				System.out.println("Please Enter a Valid Number!");		
-		}
-		
-		int WeaponGuess = Integer.parseInt(
-				restrictedAsk("Press 1 for Broom,2 for Scissors,3 for Knife,4 for Shovel or 5 for iPad", "Error - please enter values 1 to 5 for respective weapons", Arrays.asList("1","2","3", "4","5")));
-		switch (WeaponGuess) {
-		case 1:
-			guessedWeapon = new Weapon("Broom");				 
-		break;
-		case 2:
-			guessedWeapon = new Weapon("Scissors");			
-			break;
-		case 3:
-			guessedWeapon = new Weapon("Knife");			
-			break;
-		case 4:
-			guessedWeapon = new Weapon("Shovel");		
-			break;
-		case 5:
-			guessedWeapon = new Weapon("iPad");		
-			break;
-			default:
-				System.out.println("Please Enter a Valid Number!");		
-		}
-			 
-		int CharacterGuess= Integer.parseInt(
-				restrictedAsk("Press 1 for Lucilla,2 for Bert,3 for Maline,4 for Percy","Error - please enter values 1 to 4 for respective characters", Arrays.asList("1","2","3", "4")));
-		switch (CharacterGuess) {
-		case 1:
-			guessedCharacter = new Character("Lucilla");				 
-		break;
-		case 2:
-			guessedCharacter = new Character("Bert");			
-			break;
-		case 3:
-			guessedCharacter = new Character("Maline");			
-			break;
-		case 4:
-			guessedCharacter = new Character("Percy");					
-			break;
-			default:
-				System.out.println("Please Enter a Valid Number!");		
-		}		
-		//making required objects to check if the attempt was successful
-		RoomCard guessedRoomCard= new RoomCard(guessedRoom);
-		WeaponCard guessedWeaponCard= new WeaponCard(guessedWeapon);
-		CharacterCard guessedCharacterCard= new CharacterCard(guessedCharacter);
-		Set guessedSolution= new Set(guessedRoomCard,guessedWeaponCard,guessedCharacterCard);
-		//Returning from the method once solution is checked
-		if(guessedSolution.getRoomCard().getroom().getName().equals(solution.getRoomCard().getroom().getName())&& guessedSolution.getWeaponCard().getWeapon().getName().equals(solution.getWeaponCard().getWeapon().getName())&&guessedSolution.getCharacterCard().getCharacter().getName().equals(solution.getCharacterCard().getCharacter().getName()))
-		{
-			gameOver= true;
-			return true;
-			
-			  
-		}
-		else
-		{
-			gameOver=false;	
-			return false;		
-		}
-	}
-	//Needs to be done
-/*public Card refute()
-{
-	System.out.println("The cards to refute are:" + guessToRefute.getRoomCard().getroom().getName() + " "+ guessToRefute.getWeaponCard().getWeapon().getName() + " "+ guessToRefute.getCharacterCard().getCharacter().getName());
-	
-}
-*/
+
 	/**
 	 * Ask input from the users but the input is restricted values
 	 * 
@@ -498,6 +347,7 @@ public class Game {
 	 */
 	private void askForPlayer(int number) {
 		final BufferedReader input = new BufferedReader(new InputStreamReader(System.in));
+		// System.out.println(System.lineSeparator().repeat(1000));
 		System.out.print("Please hand the device to player " + (number + 1) + " (" + characters.get(number).getName()
 				+ ") and press enter when ready.");
 		try {
@@ -505,6 +355,202 @@ public class Game {
 		} catch (IOException e) {
 			System.err.println("I/O Error - " + e.getMessage());
 		}
+	}
+
+	private void movePlayer(Character player, int diceRoll) {
+		// To store destinations
+		Set<Square> dests = new HashSet<>();
+		Set<Room> roomDests = new HashSet<>();
+
+		// Setup fringe
+		Queue<List<Square>> fringe = new LinkedList<>();
+		fringe.add(Arrays.asList(player.getLocation())); // Starting location
+
+		while (!fringe.isEmpty()) {
+			List<Square> curPath = fringe.poll();
+
+			// Extract the current end of the path
+			Square cur = curPath.get(curPath.size() - 1);
+
+			// Search all neighbours for more paths
+			for (Square dest : getNeighbours(cur)) {
+				// Can't visit a already visited square
+				if (!curPath.contains(dest)) {
+					// Create the new path
+					List<Square> newPath = new ArrayList<>(curPath);
+					newPath.add(dest);
+
+					// If the square is part of a room the player to access that room
+					if (dest.hasPartOf())
+						roomDests.add(dest.getPartOf());
+
+					// If the player has more moves add path to fringe
+					if (newPath.size() < diceRoll + 1)
+						fringe.add(newPath);
+
+					// If out of moves and not in a room record destination
+					if (!dest.hasPartOf() && newPath.size() >= diceRoll + 1)
+						dests.add(dest);
+				}
+			}
+		}
+
+		// Show options
+		System.out.println("Avaliable squares : " + dests);
+		System.out.println("Avaliable rooms : " + roomDests);
+
+		String responce = restrictedAsk("What square would you like to move too?", "Please enter a avaliable square.",
+				Stream.concat(dests.stream().map(i -> i.getPosition()), roomDests.stream().map(i -> i.getName()))
+						.collect(Collectors.toList()));
+
+		// Get the square form the user response
+		Square newLoc = board.gotFromCode(responce);
+
+		// If a square could be located from the response move to it
+		if (newLoc != null) {
+			player.setLocation(newLoc);
+		}
+		// If there was no square, then user entry must have been a room.
+		else {
+			for (Room r : rooms) {
+				if (r.getName().equals(responce)) {
+					// Room found, move player to it
+					moveToRoom(player, r);
+					break;
+				}
+			}
+		}
+	}
+
+	/**
+	 * Finds all the accessible neighbours of the given square
+	 * 
+	 * @param square The square to find the neighbours for
+	 * @return The set of neighbours located
+	 */
+	private Set<Square> getNeighbours(Square square) {
+		Set<Square> neighbours = new HashSet<>();
+		// If the square is outside a room check bordering squares
+		if (!square.hasPartOf()) {
+			int index = board.indexOfGameSquare(square);
+			// Left
+			if (board.isGameSquare(board.getX(index) - 1, board.getY(index)))
+				neighbours.add(board.getGameSquare(index - 1));
+			// Right
+			if (board.isGameSquare(board.getX(index) + 1, board.getY(index)))
+				neighbours.add(board.getGameSquare(index + 1));
+			// Above
+			if (board.isGameSquare(board.getX(index), board.getY(index) - 1))
+				neighbours.add(board.getGameSquare(index - board.boardSize()));
+			// Below
+			if (board.isGameSquare(board.getX(index), board.getY(index) + 1))
+				neighbours.add(board.getGameSquare(index + board.boardSize()));
+
+		} else {
+			for (Square s : square.getPartOf().getSquares()) {
+				if (s.isAccessible()) {
+					Room placeHold = s.getPartOf();
+					s.setPartOf(null);
+					neighbours.addAll(getNeighbours(s));
+					s.setPartOf(placeHold);
+				}
+			}
+		}
+		return neighbours;
+	}
+
+	/**
+	 * Move a given player to a given room
+	 * 
+	 * @param character    Character to move
+	 * @param roomToMoveTo Room to move them too
+	 */
+	public void moveToRoom(Character character, Room roomToMoveTo) {
+		character.setLocation(roomToMoveTo.getSquares().get(getRoomPos(character, roomToMoveTo)));
+	}
+
+	/**
+	 * Get the position in a room to move a certain character to. Don't use me, use
+	 * moveToRoom(Character, Room) instead to move characters.
+	 * 
+	 * @param c Character to find location for
+	 * @param r Room to find location for
+	 * @return The position in the room identified
+	 */
+	private int getRoomPos(Character c, Room r) {
+		int charIndex = characters.indexOf(c);
+		if (r.getName().equals("Villa Celia")) {
+			return 7 + charIndex;
+		}
+		if (charIndex == 0) {
+			return 7;
+		}
+		return 10 + charIndex;
+
+	}
+
+	/**
+	 * Given player makes a guess
+	 * 
+	 * @param makingGuess Player making the guess
+	 */
+	public void makeGuess(Character makingGuess) {
+		Room inRoom = makingGuess.getInRoom();
+		CardTriplet guessToRefute = askForGuess(inRoom);
+
+		
+		this.moveToRoom(guessToRefute.getCharacter(), inRoom);
+		guessToRefute.getWeapon().setLocation(inRoom);
+		
+
+		int curPLayerNum = characters.indexOf(makingGuess);
+		for (int i = 1; i < playerNum; i++) {
+			refute(characters.get((curPLayerNum + i) % playerNum), guessToRefute);
+		}
+	}
+
+	/**
+	 * Given player attempts to solve the murder!
+	 * 
+	 * @param makingSolve Who is try to solve
+	 * @return If they were successful
+	 */
+	public boolean trySolve(Character makingSolve) {
+		Room inRoom = makingSolve.getInRoom();
+		CardTriplet guessedSolution = askForGuess(makingSolve.getInRoom());
+		
+		guessedSolution.getWeapon().setLocation(inRoom);
+		this.moveToRoom(guessedSolution.getCharacter(), inRoom);
+
+		// Returning from the method once solution is checked
+		if (guessedSolution.equals(solution)) {
+			return true;
+
+		} else {
+			return false;
+		}
+	}
+
+	// TODO Write me
+	public void refute(Character refuter, CardTriplet toRefute) {
+		askForPlayer(characters.indexOf(refuter));
+		System.out.println("The cards to refute are:" + toRefute.getRoom().getName() + ", "
+				+ toRefute.getWeapon().getName() + ", " + toRefute.getCharacter().getName());
+
+	}
+
+	private CardTriplet askForGuess(Room roomToUse) {
+		int WeaponGuess = Integer.parseInt(restrictedAsk(
+				"Press 1 for Broom,2 for Scissors,3 for Knife,4 for Shovel or 5 for iPad",
+				"Error - please enter values 1 to 5 for respective weapons", Arrays.asList("1", "2", "3", "4", "5")));
+		Weapon guessedWeapon = weapons.get(WeaponGuess - 1);
+
+		int CharacterGuess = Integer.parseInt(restrictedAsk("Press 1 for Lucilla,2 for Bert,3 for Maline,4 for Percy",
+				"Error - please enter values 1 to 4 for respective characters", Arrays.asList("1", "2", "3", "4")));
+		Character guessedCharacter = characters.get(CharacterGuess - 1);
+
+		// making required objects to check if the attempt was successful
+		return new CardTriplet(roomToUse, guessedWeapon, guessedCharacter);
 	}
 
 	/**

@@ -1,3 +1,4 @@
+import java.util.*;
 /**
  * 
  * @author Runtime Terror
@@ -10,6 +11,7 @@ public class Room {
 
 	// Room Attributes
 	private String name;
+	private List<Square> squares =  new ArrayList<>();
 
 	// ------------------------
 	// CONSTRUCTOR
@@ -33,8 +35,17 @@ public class Room {
 	public String getName() {
 		return name;
 	}
+	
+	public void addSquare(Square square) {
+		squares.add(square);
+	}
+	
+	public List<Square> getSquares() {
+		List<Square> newSquares = Collections.unmodifiableList(squares);
+		return newSquares;
+	}
 
 	public String toString() {
-		return super.toString() + "[" + "name" + ":" + getName() + "]";
+		return getName();
 	}
 }

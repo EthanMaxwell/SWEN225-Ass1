@@ -9,23 +9,20 @@ public class Square {
 	// ------------------------
 
 	// Square Attributes
-	private boolean accessible;
+	private boolean accessible = true;
 
 	// Square Associations
-	private Room partOf;
+	private Room partOf = null;
 
 	//Character representing each square for printing
-	private String Character;
+	private String position;
 
 	// ------------------------
 	// CONSTRUCTOR
 	// ------------------------
 
-	public Square(boolean aAccessible) {
-		accessible = aAccessible;
-	}
-	public Square(boolean aAccessible, String character) {
-		accessible = aAccessible; Character = character;
+	public Square(String position) {
+		this.position = position;
 	}
 
 	// ------------------------
@@ -39,7 +36,7 @@ public class Square {
 		return wasSet;
 	}
 
-	public boolean getAccessible() {
+	public boolean isAccessible() {
 		return accessible;
 	}
 
@@ -53,7 +50,11 @@ public class Square {
 		return has;
 	}
 
-	/* Code from template association_SetUnidirectionalOptionalOne */
+	
+	/**
+	 * @param aNewPartOf Set the room this square is part of
+	 * @return If the setting was successful
+	 */
 	public boolean setPartOf(Room aNewPartOf) {
 		boolean wasSet = false;
 		partOf = aNewPartOf;
@@ -61,16 +62,22 @@ public class Square {
 		return wasSet;
 	}
 
-	public void delete() {
-		partOf = null;
+	public String getCharacter(){
+		if(hasPartOf()) {
+			if(accessible)
+				return "   ";
+			return " " + partOf.getName().charAt(0) + " ";
+		}
+		if(!accessible)
+			return "WW|";
+		return "__|";
 	}
-	public void setCharacter(String character){Character = character;}
-
-	public String getCharacter(){return Character;}
+	
+	public String getPosition() {
+		return position;
+	}
 
 	public String toString() {
-		return super.toString() + "[" + "accessible" + ":" + getAccessible() + "]"
-				+ System.getProperties().getProperty("line.separator") + "  " + "partOf = "
-				+ (getPartOf() != null ? Integer.toHexString(System.identityHashCode(getPartOf())) : "null");
+		return position;
 	}
 }

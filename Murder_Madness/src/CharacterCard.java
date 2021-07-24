@@ -36,7 +36,7 @@ public class CharacterCard implements Card {
 	}
 
 	/**
-	 * Set character that this card represents
+	 * CardTriplet character that this card represents
 	 * 
 	 * @param aNewCharacter Character to change to
 	 * @return If change was successful

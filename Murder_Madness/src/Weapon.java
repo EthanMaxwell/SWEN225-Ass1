@@ -25,11 +25,6 @@ public class Weapon {
 					"Unable to create Weapon due to aLocation. See http://manual.umple.org?RE002ViolationofAssociationMultiplicity.html");
 		}
 	}
-	public Weapon(String aName)
-		{
-			name=aName;
-		}
-	
 
 	// ------------------------
 	// INTERFACE

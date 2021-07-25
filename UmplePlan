@@ -30,6 +30,7 @@ class Board
 class Square
 {
   boolean accessible;
+  * -- 0..1 Room partOf;
 }
 
 class Character
@@ -46,7 +47,6 @@ class Character
 class Room
 {
   name;
-  0..1 -> * Square RoomSquares;
 }
 
 class Weapon
@@ -80,75 +80,63 @@ class RoomCard
 class Game
 {
   0..1 -> 1 Board board;
-  0..1 -> * Character characters;
-  0..1 -> 1 Solution;
-  0..1 -> 1 Accusation;
-  0..1 -> 1 Suggestion;
+  0..1 -> * Character;
+  0..1 -> * Room;
+  0..1 -> * Weapon;
+  0..1 -> 1 CardTriplet Solution;
+  }
+
+class CardTriplet
+{
+  0..1 -> 1 Room;
+  0..1 -> 1 Weapon;
+  0..1 -> 1 Character;
 }
 
-class Set
-{
-  0..1 -> 1 RoomCard;
-  0..1 -> 1 WeaponCard;
-  0..1 -> 1 CharacterCard;
-}
-
-class Solution
-{
-  isA Set;
-}
-
-
-class Accusation
-{
-  isA Set;
-}
-
-class Suggestion
-{
-  isA Set;
-}//$?[End_of_model]$?
+//$?[End_of_model]$?
 
 namespace -;
 
 
 class Board
 {
-  position 64 250 109 41.9625;
-  position.association Board__Square 25,62 62,0;
+  position 60 107 109 41.9625;
+  position.association Board__Square 25,42 31,0;
   position.association Board__Character 109,35 0,23;
   position.association Board__Card 100,0 0,30;
   position.association Board__Card:solution 103,0 0,10;
   position.association Board__Game 49,0 47,62;
   position.association Board__Square:GameSquares 27,42 24,0;
-  position.association Board__Square:gameSquares 8,42 0,0;
+  position.association Board__Square:gameSquares 49,42 59,0;
+  position.association Board__Room 62,42 0,3;
 }
 
 class Square
 {
-  position 111 441 154.413 78.9625;
+  position 34 326 154.413 58.9625;
+  position.association Room:partOf__Square 155,13 0,52;
 }
 
 class Character
 {
-  position 585 412 46.9531 162.5;
+  position 191 165 112.4 58.9625;
   position.association Character__CharacterCard 77,0 51,42;
   position.association Character__Square 0,40 110,35;
   position.association Character__Room 0,16 113,47;
-  position.association Character__CharacterCard:characterCard 39,0 0,10;
-  position.association Character__CharacterCard:theirCard 84,0 49,42;
-  position.association Character__CharacterCard:itsCard 112,0 40,42;
-  position.association Character__Square:location 0,52 155,58;
+  position.association Character__PlayerCard:playerCard 39,0 0,10;
+  position.association Character__PlayerCard:theirCard 84,0 49,42;
+  position.association Character__PlayerCard:itsCard 112,0 40,42;
+  position.association Character__Square:location 0,52 135,0;
   position.association Character__Square:locatlion 0,59 147,32;
-  position.association Character__CharacterCard:otsCard 1,0 0,10;
+  position.association Character__PlayerCard:otsCard 1,0 0,10;
   position.association Character__Square:locatgion 0,10 155,24;
-  position.association Card:hand__Character 65,0 97,42;
-  position.association Character__Room:inRoom 0,10 94,58;
+  position.association Card:hand__Character 112,58 52,0;
+  position.association Character__Room:inRoom 113,8 0,13;
 }
 
 class Room
 {
-  position 278 311 112.4 78.9625;
+  position 351 159 112.4 58.9625;
   position.association Room__RoomCard 44,0 44,42;
   position.association Room__Square 0,52 103,0;
   position.association Room__Room:roleName 69,0 112.4,23;
@@ -163,78 +151,61 @@ class Room
 
 class Weapon
 {
-  position 486 290 112.483 60.2431;
+  position 513 162 112.4 58.9625;
   position.association Weapon__WeaponCard 43,0 54,42;
   position.association Weapon__WeaponCard:itsCard 30,0 47,42;
-  position.association Room:location__Weapon 0,10 105,4;
+  position.association Room:location__Weapon 0,45 113,44;
 }
 
 class Card
 {
-  position 535 82 109 41;
+  position 292 267 109 41.9625;
   position.association Card__Character 82,42 0,0;
-  position.association Card__Character:holding 87,42 71,0;
+  position.association Card__Player:holding 87,42 71,0;
   }
 
 class WeaponCard
 {
-  position 483 192 109 61.9625;
-  position.association Weapon:itsCard__WeaponCard 52,42 30,0;
+  position 496 352 109 41.9625;
+  position.association Weapon:itsCard__WeaponCard 67,0 49,59;
 }
 
 class CharacterCard
 {
-  position 671 192 109 61.9625;
-    position.association Character:itsCard__CharacterCard 0,30 96,0;
+  position 239 355 119.525 41.9625;
+    position.association Player:itsCard__CharacterCard 37,42 96,0;
+  position.association Character:itsCard__CharacterCard 13,0 64,59;
 }
 
 class RoomCard
 {
-  position 302 174 109 61.9625;
+  position 370 357 109 41.9625;
   position.association RoomCard__RoomCard:roleName 65,0 109,41.9625;
   position.association RoomCard__RoomCard:roleName 49,0 42,0;
-  position.association Room:itsCard__RoomCard 31,42 5,0;
+  position.association Room:itsCard__RoomCard 74,0 78,59;
 }
 
 class Game
 {
-  position 34 60 109 42.5868;
+  position 193 4 109 41.9625;
   position.association Game__Character 110,10 0,10;
-  position.association Game__Character:characters 110,35 9,0;
-  position.association Board:board__Game 41,42 30,0;
-  position.association Game__Solution 110,4 0,34;
-  position.association Accusation__Game 110,10 0,10;
-  position.association Game__Suggestion 110,10 0,10;
+  position.association Game__Player:players 110,42 9,0;
+  position.association Board:board__Game 0,21 30,0;
+  position.association Character:players__Game 110,13 0,10;
+  position.association Game__Room 46,42 3,0;
+  position.association Game__Weapon 93,42 0,10;
+  position.association Character__Game 8,42 4,0;
+  position.association CardTriplet:Solution__Game 110,20 0,0;
 }
 
-class Set
+class CardTriplet
 {
-  position 420 47 109 42.5868;
-  position.association CharacterCard__Set 110,15 0,10;
-  position.association RoomCard__Set 0,10 110,0;
-  position.association Set__WeaponCard 109,10 3,0;
-}
-
-class Solution
-{
-  position 213 0 109 41.3594;
-}
-
-class Accusation
-{
-  position 215 53 109 41.3594;
-}
-
-class Suggestion
-{
-  position 215 147 109 41.3594;
-}
-
-class Game
-{
-  position 90 92 109 61.9625;
-  position.association Game__Character 110,10 0,10;
-  position.association Card:solution__Game 110,0 0,10;
-  position.association Game__Character:characters 110,35 9,0;
-  position.association Board:board__Game 41,42 30,0;
+  position 395 45 109 41.9625;
+  position.association CharacterCard__CardTriplet 110,15 0,10;
+  position.association RoomCard__CardTriplet 83,42 88,0;
+  position.association CardTriplet__WeaponCard 110,39 24,0;
+  position.association CardTriplet__CharacterCard 110,10 0,10;
+  position.association CardTriplet__Room 63,42 63,0;
+  position.association CardTriplet__Weapon 110,35 52,0;
+  position.association CardTriplet__Character 11,42 18,0;
 }

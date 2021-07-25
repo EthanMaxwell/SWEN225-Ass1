@@ -34,6 +34,10 @@ public class CharacterCard implements Card {
 	public Character getCharacter() {
 		return character;
 	}
+	
+	public String getName() {
+		return character.getName();
+	}
 
 	/**
 	 * CardTriplet character that this card represents

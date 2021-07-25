@@ -36,10 +36,10 @@ public class Character {
 	// ------------------------
 
 	public boolean setName(String aName) {
-		boolean wasSet = false;
+		boolean wasList = false;
 		name = aName;
-		wasSet = true;
-		return wasSet;
+		wasList = true;
+		return wasList;
 	}
 
 	public String getName() {
@@ -49,12 +49,6 @@ public class Character {
 	/* Code from template association_GetOne */
 	public Square getLocation() {
 		return location;
-	}
-
-	/* Code from template association_GetMany */
-	public Card getCard(int index) {
-		Card aHand = hand.get(index);
-		return aHand;
 	}
 
 	public List<Card> getHand() {
@@ -70,11 +64,6 @@ public class Character {
 	public boolean hasHand() {
 		boolean has = hand.size() > 0;
 		return has;
-	}
-
-	public int indexOfHand(Card aHand) {
-		int index = hand.indexOf(aHand);
-		return index;
 	}
 
 	/* Code from template association_GetOne */
@@ -108,15 +97,15 @@ public class Character {
 	 * @return If move was successful
 	 */
 	public boolean setLocation(Square aNewLocation) {
-		boolean wasSet = false;
+		boolean wasList = false;
 		if (aNewLocation != null) {
 			if (location != null && !location.hasPartOf())
 				location.setAccessible(true);
 			aNewLocation.setAccessible(false);
 			location = aNewLocation;
-			wasSet = true;
+			wasList = true;
 		}
-		return wasSet;
+		return wasList;
 	}
 
 	/**
@@ -148,6 +137,11 @@ public class Character {
 			wasRemoved = true;
 		}
 		return wasRemoved;
+	}
+	
+	public void printHand() {
+		System.out.println("Your hand is: "
+				+ (hand.stream().map(c -> c.getName()).reduce((a, b) -> (a + ", " + b))).get());
 	}
 
 	public String toString() {

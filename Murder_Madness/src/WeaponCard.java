@@ -31,6 +31,10 @@ public class WeaponCard implements Card {
 	public Weapon getWeapon() {
 		return weapon;
 	}
+	
+	public String getName() {
+		return weapon.getName();
+	}
 
 	/* Code from template association_SetUnidirectionalOne */
 	public boolean setWeapon(Weapon aNewWeapon) {

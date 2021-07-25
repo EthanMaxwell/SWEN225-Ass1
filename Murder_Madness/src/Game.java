@@ -254,11 +254,12 @@ public class Game {
 			if (takingTurn.isOut())
 				continue;
 
-			System.out
-					.println("\nIt's now player " + (turnNum % playerNum + 1) + " (" + takingTurn.getName() + ") turn");
+			// System.out.println("\nIt's now player " + (turnNum % playerNum + 1) + " (" +
+			// takingTurn.getName() + ") turn");
 			askForPlayer(turnNum % playerNum);
 
 			board.printBoard(characters);
+			takingTurn.printHand();
 
 			// Roll the two dice
 			int diceRoll = (int) (Math.random() * 6) + (int) (Math.random() * 6) + 2;
@@ -346,10 +347,15 @@ public class Game {
 	 * @param number Number of player to ask for
 	 */
 	private void askForPlayer(int number) {
-		final BufferedReader input = new BufferedReader(new InputStreamReader(System.in));
-		// System.out.println(System.lineSeparator().repeat(1000));
+		System.out.println(System.lineSeparator().repeat(100000));
 		System.out.print("Please hand the device to player " + (number + 1) + " (" + characters.get(number).getName()
 				+ ") and press enter when ready.");
+		waitForEnter();
+	}
+
+	private void waitForEnter() {
+		final BufferedReader input = new BufferedReader(new InputStreamReader(System.in));
+
 		try {
 			input.readLine();
 		} catch (IOException e) {
@@ -498,15 +504,22 @@ public class Game {
 		Room inRoom = makingGuess.getInRoom();
 		CardTriplet guessToRefute = askForGuess(inRoom);
 
-		
 		this.moveToRoom(guessToRefute.getCharacter(), inRoom);
 		guessToRefute.getWeapon().setLocation(inRoom);
-		
 
 		int curPLayerNum = characters.indexOf(makingGuess);
+		Card[] toSee = new Card[playerNum - 1];
 		for (int i = 1; i < playerNum; i++) {
-			refute(characters.get((curPLayerNum + i) % playerNum), guessToRefute);
+			toSee[i - 1] = refute(characters.get((curPLayerNum + i) % playerNum), guessToRefute);
 		}
+
+		System.out.println("You got shown:");
+		for (int i = 0; i < toSee.length; i++) {
+			int showNum = (curPLayerNum + i + 1) % playerNum;
+			System.out.println("Player " + (showNum + 1) + " (" + characters.get(showNum).getName() + ") showed you : " +  (toSee[i] != null? toSee[i] : "Nothing"));
+		}
+		System.out.println("Press enter when done");
+		waitForEnter();
 	}
 
 	/**
@@ -518,7 +531,7 @@ public class Game {
 	public boolean trySolve(Character makingSolve) {
 		Room inRoom = makingSolve.getInRoom();
 		CardTriplet guessedSolution = askForGuess(makingSolve.getInRoom());
-		
+
 		guessedSolution.getWeapon().setLocation(inRoom);
 		this.moveToRoom(guessedSolution.getCharacter(), inRoom);
 
@@ -532,21 +545,49 @@ public class Game {
 	}
 
 	// TODO Write me
-	public void refute(Character refuter, CardTriplet toRefute) {
+	public Card refute(Character refuter, CardTriplet toRefute) {
 		askForPlayer(characters.indexOf(refuter));
-		System.out.println("The cards to refute are:" + toRefute.getRoom().getName() + ", "
+		System.out.println("The cards to refute are: " + toRefute.getRoom().getName() + ", "
 				+ toRefute.getWeapon().getName() + ", " + toRefute.getCharacter().getName());
+		
+		refuter.printHand();
 
+		List<Card> canRefute = toRefute.contains(refuter.getHand());
+		if (canRefute.size() == 0) {
+			System.out.println("You have no cards to show. Press enter when done.");
+			waitForEnter();
+			return null;
+		}
+		if (canRefute.size() == 1) {
+			System.out.println("You must show your " + canRefute.get(0).getName() + " card. Press enter when done.");
+			waitForEnter();
+			return canRefute.get(0);
+		}
+		Card showing = canRefute.get(Integer.parseInt(restrictedAsk(
+				"Please select the card to show:\n" + (canRefute.stream()
+						.map(c -> canRefute.indexOf(c) + 1 + " - " + c.getName()).reduce((a, b) -> a + ", " + b)).get(),
+				"Error - Ender a number the corresponds to a card", makeSequence(canRefute.size()))) - 1);
+		System.out.println("You will show your " + showing.getName() + " card. Press enter when done.");
+		waitForEnter();
+		return showing;
+	}
+
+	private List<String> makeSequence(int end) {
+		List<String> ret = new ArrayList<>(end);
+		for (int i = 1; i <= end; i++) {
+			ret.add(i + "");
+		}
+		return ret;
 	}
 
 	private CardTriplet askForGuess(Room roomToUse) {
-		int WeaponGuess = Integer.parseInt(restrictedAsk(
-				"Press 1 for Broom,2 for Scissors,3 for Knife,4 for Shovel or 5 for iPad",
-				"Error - please enter values 1 to 5 for respective weapons", Arrays.asList("1", "2", "3", "4", "5")));
+		int WeaponGuess = Integer
+				.parseInt(restrictedAsk("Press 1 for Broom,2 for Scissors,3 for Knife,4 for Shovel or 5 for iPad",
+						"Error - please enter values 1 to 5 for respective weapons", makeSequence(5)));
 		Weapon guessedWeapon = weapons.get(WeaponGuess - 1);
 
 		int CharacterGuess = Integer.parseInt(restrictedAsk("Press 1 for Lucilla,2 for Bert,3 for Maline,4 for Percy",
-				"Error - please enter values 1 to 4 for respective characters", Arrays.asList("1", "2", "3", "4")));
+				"Error - please enter values 1 to 4 for respective characters", makeSequence(4)));
 		Character guessedCharacter = characters.get(CharacterGuess - 1);
 
 		// making required objects to check if the attempt was successful

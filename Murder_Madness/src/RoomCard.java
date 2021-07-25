@@ -31,6 +31,10 @@ public class RoomCard implements Card {
 	public Room getroom() {
 		return room;
 	}
+	
+	public String getName() {
+		return room.getName();
+	}
 
 	/* Code from template association_SetUnidirectionalOne */
 	public boolean setroom(Room aNewroom) {

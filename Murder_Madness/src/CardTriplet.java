@@ -1,3 +1,4 @@
+import java.util.*;
 /**
  * 
  * @author Runtime Terror
@@ -130,6 +131,15 @@ public class CardTriplet {
 		} else if (!weapon.equals(other.weapon))
 			return false;
 		return true;
+	}
+	
+	public List<Card> contains(List<Card> toSearch){
+		List<Card> output = new ArrayList<>();
+		for(Card c : toSearch) {
+			if(character.getName().equals(c.getName()) || room.getName().equals(c.getName()) || weapon.getName().equals(c.getName()))
+				output.add(c);
+		}
+		return output;
 	}
 
 	/**

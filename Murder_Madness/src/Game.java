@@ -274,7 +274,7 @@ public class Game {
 
 			// If in a room ask if they want to move or stay
 			if (!takingTurn.isInRoom()
-					|| restrictedAsk("Would you like to stay in your current room?\n 1 - Stay	2 - Move",
+					|| restrictedAsk("Would you like to stay the " + takingTurn.getInRoom().getName() + "?\n 1 - Stay	2 - Move",
 							"Error - please enter 1 or 2", Arrays.asList("1", "2")).equals("2")) {
 				movePlayer(takingTurn, diceRoll);
 			}
@@ -306,7 +306,7 @@ public class Game {
 	 * @param question
 	 * @param errorMsg
 	 * @param restrictedValues
-	 * @return The validated input the user entered
+	 * @return The validated input the user entered in lower case
 	 */
 
 	public String restrictedAsk(String question, String errorMsg, List<String> restrictedValues) {
@@ -316,13 +316,13 @@ public class Game {
 		while (!found) {
 			System.out.print(question + "\n>");
 			try {
-				result = input.readLine();
+				result = input.readLine().toLowerCase();
 			} catch (IOException e) {
 				System.err.println("I/O Error - " + e.getMessage());
 			}
 
 			for (String i : restrictedValues) {
-				if (result.equals(i)) {
+				if (result.equals(i.toLowerCase())) {
 					found = true;
 				}
 			}
@@ -416,6 +416,8 @@ public class Game {
 				}
 			}
 		}
+		
+		roomDests.remove(player.getInRoom());
 
 		// Show options
 		System.out.println("Avaliable squares : " + dests);
@@ -435,7 +437,7 @@ public class Game {
 		// If there was no square, then user entry must have been a room.
 		else {
 			for (Room r : rooms) {
-				if (r.getName().equals(responce)) {
+				if (r.getName().toLowerCase().equals(responce.toLowerCase())) {
 					// Room found, move player to it
 					moveToRoom(player, r);
 					break;
@@ -529,6 +531,7 @@ public class Game {
 			toSee[i - 1] = refute(characters.get((curPLayerNum + i) % playerNum), guessToRefute);
 		}
 
+		askForPlayer(characters.indexOf(makingGuess));
 		System.out.println("You got shown:");
 		for (int i = 0; i < toSee.length; i++) {
 			int showNum = (curPLayerNum + i + 1) % playerNum;

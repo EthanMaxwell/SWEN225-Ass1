@@ -16,6 +16,11 @@ public class WeaponCard implements Card {
 	// CONSTRUCTOR
 	// ------------------------
 
+	/**
+	 * Create a new card for the given weapon
+	 * 
+	 * @param aWeapon
+	 */
 	public WeaponCard(Weapon aWeapon) {
 		super();
 		if (!setWeapon(aWeapon)) {
@@ -27,7 +32,10 @@ public class WeaponCard implements Card {
 	// ------------------------
 	// INTERFACE
 	// ------------------------
-	/* Code from template association_GetOne */
+
+	/**
+	 * @return Weapon this card represents
+	 */
 	public Weapon getWeapon() {
 		return weapon;
 	}
@@ -36,7 +44,12 @@ public class WeaponCard implements Card {
 		return weapon.getName();
 	}
 
-	/* Code from template association_SetUnidirectionalOne */
+	/**
+	 * Set CardTriplet weapon that this card represents
+	 * 
+	 * @param aNewWeapon Weapon to change too
+	 * @return If change was successful
+	 */
 	public boolean setWeapon(Weapon aNewWeapon) {
 		boolean wasSet = false;
 		if (aNewWeapon != null) {

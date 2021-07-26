@@ -16,6 +16,11 @@ public class CharacterCard implements Card {
 	// CONSTRUCTOR
 	// ------------------------
 
+	/**
+	 * Create a new card for the given character
+	 * 
+	 * @param character
+	 */
 	public CharacterCard(Character character) {
 		super();
 		if (!setCharacter(character)) {
@@ -35,14 +40,15 @@ public class CharacterCard implements Card {
 		return character;
 	}
 	
+	@Override
 	public String getName() {
 		return character.getName();
 	}
 
 	/**
-	 * CardTriplet character that this card represents
+	 * Set CardTriplet character that this card represents
 	 * 
-	 * @param aNewCharacter Character to change to
+	 * @param aNewCharacter Character to change too
 	 * @return If change was successful
 	 */
 	private boolean setCharacter(Character aNewCharacter) {

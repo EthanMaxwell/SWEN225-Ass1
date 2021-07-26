@@ -16,6 +16,11 @@ public class RoomCard implements Card {
 	// CONSTRUCTOR
 	// ------------------------
 
+	/**
+	 * Create a new card for the given room
+	 * 
+	 * @param aroom
+	 */
 	public RoomCard(Room aroom) {
 		super();
 		if (!setroom(aroom)) {
@@ -27,16 +32,25 @@ public class RoomCard implements Card {
 	// ------------------------
 	// INTERFACE
 	// ------------------------
-	/* Code from template association_GetOne */
+
+	/**
+	 * @return Room this card represents
+	 */
 	public Room getroom() {
 		return room;
 	}
 	
+	@Override
 	public String getName() {
 		return room.getName();
 	}
 
-	/* Code from template association_SetUnidirectionalOne */
+	/**
+	 * Set CardTriplet room that this card represents
+	 * 
+	 * @param aNewroom Room to change too
+	 * @return If change was successful
+	 */
 	public boolean setroom(Room aNewroom) {
 		boolean wasSet = false;
 		if (aNewroom != null) {

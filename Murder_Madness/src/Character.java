@@ -1,6 +1,7 @@
 import java.util.*;
 
 /**
+ * A character in on the game board, may be player controlled or not
  * 
  * @author Runtime Terror
  */
@@ -22,6 +23,12 @@ public class Character {
 	// CONSTRUCTOR
 	// ------------------------
 
+	/**
+	 * Create a new character with given name on given square
+	 * 
+	 * @param aName
+	 * @param aLocation
+	 */
 	public Character(String aName, Square aLocation) {
 		name = aName;
 		if (!setLocation(aLocation)) {
@@ -35,42 +42,54 @@ public class Character {
 	// INTERFACE
 	// ------------------------
 
-	public boolean setName(String aName) {
-		boolean wasList = false;
-		name = aName;
-		wasList = true;
-		return wasList;
-	}
-
+	/**
+	 * @return This characters name
+	 */
 	public String getName() {
 		return name;
 	}
 
-	/* Code from template association_GetOne */
+	/**
+	 * @return The square this character is located on
+	 */
 	public Square getLocation() {
 		return location;
 	}
 
+	/**
+	 * @return A unmodifiable list of the players hand
+	 */
 	public List<Card> getHand() {
 		List<Card> newHand = Collections.unmodifiableList(hand);
 		return newHand;
 	}
 
+	/**
+	 * @return Number of card in the players hand
+	 */
 	public int numberOfCards() {
 		int number = hand.size();
 		return number;
 	}
 
+	/**
+	 * @return If the player has a hand (No hand probably means they arn't a player)
+	 */
 	public boolean hasHand() {
 		boolean has = hand.size() > 0;
 		return has;
 	}
 
-	/* Code from template association_GetOne */
+	/**
+	 * @return Room this character is in (may be null)
+	 */
 	public Room getInRoom() {
 		return location.getPartOf();
 	}
 
+	/**
+	 * @return If this character is in a room
+	 */
 	public boolean isInRoom() {
 		boolean has = location.getPartOf() != null;
 		return has;
@@ -99,9 +118,11 @@ public class Character {
 	public boolean setLocation(Square aNewLocation) {
 		boolean wasList = false;
 		if (aNewLocation != null) {
+			// Change start and finish square accessibility
 			if (location != null && !location.hasPartOf())
 				location.setAccessible(true);
 			aNewLocation.setAccessible(false);
+			
 			location = aNewLocation;
 			wasList = true;
 		}
@@ -139,7 +160,11 @@ public class Character {
 		return wasRemoved;
 	}
 	
+	/**
+	 * Print out the characters hand in full
+	 */
 	public void printHand() {
+		// Get the name of each card and joins them with commas
 		System.out.println("Your hand is: "
 				+ (hand.stream().map(c -> c.getName()).reduce((a, b) -> (a + ", " + b))).get());
 	}

@@ -1,5 +1,7 @@
 import java.util.*;
 /**
+ * Is a set of three objects: one room, weapon and character.
+ * Used to store the game solution and player guesses and solves
  * 
  * @author Runtime Terror
  */
@@ -18,6 +20,13 @@ public class CardTriplet {
 	// CONSTRUCTOR
 	// ------------------------
 
+	/**
+	 * Create the card triplet for the given room, weapon and character object
+	 * 
+	 * @param aRoom
+	 * @param aWeapon
+	 * @param aCharacter
+	 */
 	public CardTriplet(Room aRoom, Weapon aWeapon, Character aCharacter) {
 		if (!setRoom(aRoom)) {
 			throw new RuntimeException(
@@ -33,6 +42,13 @@ public class CardTriplet {
 		}
 	}
 	
+	/**
+	 * Create the card triplet for the given CARDS
+	 * 
+	 * @param aRoomCard
+	 * @param aWeaponCard
+	 * @param aCharacterCard
+	 */
 	public CardTriplet(RoomCard aRoomCard, WeaponCard aWeaponCard, CharacterCard aCharacterCard) {
 		if (!setRoom(aRoomCard.getroom())) {
 			throw new RuntimeException(
@@ -51,22 +67,33 @@ public class CardTriplet {
 	// ------------------------
 	// INTERFACE
 	// ------------------------
-	/* Code from template association_GetOne */
+	/**
+	 * @return Room in this triplet
+	 */
 	public Room getRoom() {
 		return room;
 	}
 
-	/* Code from template association_GetOne */
+	/**
+	 * @return Weapon in this triplet
+	 */
 	public Weapon getWeapon() {
 		return weapon;
 	}
 
-	/* Code from template association_GetOne */
+	/**
+	 * @return Character in this triplet
+	 */
 	public Character getCharacter() {
 		return character;
 	}
 
-	/* Code from template association_SetUnidirectionalOne */
+	/**
+	 * Set the room in this triplet
+	 * 
+	 * @param aNewRoom Room to set it to
+	 * @return If the setting was successful
+	 */
 	public boolean setRoom(Room aNewRoom) {
 		boolean wasSet = false;
 		if (aNewRoom != null) {
@@ -76,7 +103,12 @@ public class CardTriplet {
 		return wasSet;
 	}
 
-	/* Code from template association_SetUnidirectionalOne */
+	/**
+	 * Set the weapon in this triplet
+	 * 
+	 * @param aNewWeapon Weapon to set it to
+	 * @return If the setting was successful
+	 */
 	public boolean setWeapon(Weapon aNewWeapon) {
 		boolean wasSet = false;
 		if (aNewWeapon != null) {
@@ -86,7 +118,12 @@ public class CardTriplet {
 		return wasSet;
 	}
 
-	/* Code from template association_SetUnidirectionalOne */
+	/**
+	 * Set the character in this triplet
+	 * 
+	 * @param aNewCharacter Character to set it to
+	 * @return If the setting was successful
+	 */
 	public boolean setCharacter(Character aNewCharacter) {
 		boolean wasSet = false;
 		if (aNewCharacter != null) {

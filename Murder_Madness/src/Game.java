@@ -6,6 +6,8 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 /**
+ * Repents a entire game of Murder Mystery.
+ * Can be run with main directly to create a new game.
  * 
  * @author Runtime Terror
  */
@@ -140,6 +142,9 @@ public class Game {
 		setupDoors();
 	}
 
+	/**
+	 * Create the doorways to each of the rooms
+	 */
 	private void setupDoors() {
 		// Setup doors
 		// HH
@@ -198,6 +203,7 @@ public class Game {
 	 */
 	private void createCards() {
 		List<RoomCard> roomCards = new ArrayList<RoomCard>();
+		// Form the various cards required
 		for (Room room : rooms) {
 			roomCards.add(new RoomCard(room));
 		}
@@ -245,7 +251,8 @@ public class Game {
 			// Check that at least one player can still take turns
 			if (allPlayersOut()) {
 				gameOver = true;
-				System.out.println("Everybody failed their solve attempts so everybody loses!!!");
+				System.out.println("Everybody failed their solve attempts so everybody loses!!!\nThe solution was:");
+				solution.print();
 			}
 
 			Character takingTurn = characters.get(turnNum % playerNum);
@@ -299,7 +306,7 @@ public class Game {
 	 * @param question
 	 * @param errorMsg
 	 * @param restrictedValues
-	 * @return
+	 * @return The validated input the user entered
 	 */
 
 	public String restrictedAsk(String question, String errorMsg, List<String> restrictedValues) {
@@ -353,6 +360,9 @@ public class Game {
 		waitForEnter();
 	}
 
+	/**
+	 * Wait of the enter key to be pressed
+	 */
 	private void waitForEnter() {
 		final BufferedReader input = new BufferedReader(new InputStreamReader(System.in));
 
@@ -363,6 +373,12 @@ public class Game {
 		}
 	}
 
+	/**
+	 * Allows the given player to move by the given dice roll
+	 * 
+	 * @param player Player that is allowed to move
+	 * @param diceRoll The dice roll to show max move distance
+	 */
 	private void movePlayer(Character player, int diceRoll) {
 		// To store destinations
 		Set<Square> dests = new HashSet<>();
@@ -405,7 +421,7 @@ public class Game {
 		System.out.println("Avaliable squares : " + dests);
 		System.out.println("Avaliable rooms : " + roomDests);
 
-		String responce = restrictedAsk("What square would you like to move too?", "Please enter a avaliable square.",
+		String responce = restrictedAsk("Where would you like to move too?", "Please enter a avaliable square or room.",
 				Stream.concat(dests.stream().map(i -> i.getPosition()), roomDests.stream().map(i -> i.getName()))
 						.collect(Collectors.toList()));
 
@@ -516,7 +532,8 @@ public class Game {
 		System.out.println("You got shown:");
 		for (int i = 0; i < toSee.length; i++) {
 			int showNum = (curPLayerNum + i + 1) % playerNum;
-			System.out.println("Player " + (showNum + 1) + " (" + characters.get(showNum).getName() + ") showed you : " +  (toSee[i] != null? toSee[i] : "Nothing"));
+			System.out.println("Player " + (showNum + 1) + " (" + characters.get(showNum).getName() + ") showed you : "
+					+ (toSee[i] != null ? toSee[i] : "Nothing"));
 		}
 		System.out.println("Press enter when done");
 		waitForEnter();
@@ -544,12 +561,19 @@ public class Game {
 		}
 	}
 
-	// TODO Write me
+	
+	/**
+	 * Forces the given player to refute the given card triplet
+	 * 
+	 * @param refuter Person who must refute
+	 * @param toRefute CardTriplet to refute
+	 * @return The card they wish to show (null if no card to show)
+	 */
 	public Card refute(Character refuter, CardTriplet toRefute) {
 		askForPlayer(characters.indexOf(refuter));
 		System.out.println("The cards to refute are: " + toRefute.getRoom().getName() + ", "
 				+ toRefute.getWeapon().getName() + ", " + toRefute.getCharacter().getName());
-		
+
 		refuter.printHand();
 
 		List<Card> canRefute = toRefute.contains(refuter.getHand());
@@ -563,15 +587,25 @@ public class Game {
 			waitForEnter();
 			return canRefute.get(0);
 		}
-		Card showing = canRefute.get(Integer.parseInt(restrictedAsk(
-				"Please select the card to show:\n" + (canRefute.stream()
-						.map(c -> canRefute.indexOf(c) + 1 + " - " + c.getName()).reduce((a, b) -> a + ", " + b)).get(),
-				"Error - Ender a number the corresponds to a card", makeSequence(canRefute.size()))) - 1);
+		Card showing = canRefute
+				.get(Integer
+						.parseInt(restrictedAsk(
+								"Please select the card to show:\n"
+										+ (canRefute.stream().map(c -> canRefute.indexOf(c) + 1 + " - " + c.getName())
+												.reduce((a, b) -> a + ", " + b)).get(),
+								"Error - Ender a number the corresponds to a card", makeSequence(canRefute.size())))
+						- 1);
 		System.out.println("You will show your " + showing.getName() + " card. Press enter when done.");
 		waitForEnter();
 		return showing;
 	}
 
+	/**
+	 * Make a list of strings of numbers from 1 to the given number
+	 * 
+	 * @param end The number to cut up to (included)
+	 * @return The list of string for the numbers
+	 */
 	private List<String> makeSequence(int end) {
 		List<String> ret = new ArrayList<>(end);
 		for (int i = 1; i <= end; i++) {
@@ -580,13 +614,19 @@ public class Game {
 		return ret;
 	}
 
+	/**
+	 * Create a new guess from questions asked to the current player
+	 * 
+	 * @param roomToUse Room to use in guess
+	 * @return The created CardTriplet of the guess
+	 */
 	private CardTriplet askForGuess(Room roomToUse) {
 		int WeaponGuess = Integer
-				.parseInt(restrictedAsk("Press 1 for Broom,2 for Scissors,3 for Knife,4 for Shovel or 5 for iPad",
+				.parseInt(restrictedAsk("Press: 1 - Broom, 2 - Scissors, 3 - Knife, 4 - Shovel, 5 - iPad",
 						"Error - please enter values 1 to 5 for respective weapons", makeSequence(5)));
 		Weapon guessedWeapon = weapons.get(WeaponGuess - 1);
 
-		int CharacterGuess = Integer.parseInt(restrictedAsk("Press 1 for Lucilla,2 for Bert,3 for Maline,4 for Percy",
+		int CharacterGuess = Integer.parseInt(restrictedAsk("Press: 1 - Lucilla, 2 - Bert, 3 - Maline, 4 - Percy",
 				"Error - please enter values 1 to 4 for respective characters", makeSequence(4)));
 		Character guessedCharacter = characters.get(CharacterGuess - 1);
 

@@ -1,4 +1,5 @@
 /**
+ * A single square that helps to form the game board
  * 
  * @author Runtime Terror
  */
@@ -14,13 +15,18 @@ public class Square {
 	// Square Associations
 	private Room partOf = null;
 
-	//Character representing each square for printing
+	// Character representing each square for printing
 	private String position;
 
 	// ------------------------
 	// CONSTRUCTOR
 	// ------------------------
 
+	/**
+	 * Construct a new square it's position/name will be the given string
+	 * 
+	 * @param position String the corresponds to the squares name/position
+	 */
 	public Square(String position) {
 		this.position = position;
 	}
@@ -29,6 +35,10 @@ public class Square {
 	// INTERFACE
 	// ------------------------
 
+	/**
+	 * @param aAccessible Set the accessibility of this square to this value
+	 * @return if the change was successful
+	 */
 	public boolean setAccessible(boolean aAccessible) {
 		boolean wasSet = false;
 		accessible = aAccessible;
@@ -36,21 +46,29 @@ public class Square {
 		return wasSet;
 	}
 
+	/**
+	 * @return If this square is accessible
+	 */
 	public boolean isAccessible() {
 		return accessible;
 	}
 
-	/* Code from template association_GetOne */
+	
+	/**
+	 * @return The room this square is part of (may be null)
+	 */
 	public Room getPartOf() {
 		return partOf;
 	}
 
+	/**
+	 * @return If the square is part of a room
+	 */
 	public boolean hasPartOf() {
 		boolean has = partOf != null;
 		return has;
 	}
 
-	
 	/**
 	 * @param aNewPartOf Set the room this square is part of
 	 * @return If the setting was successful
@@ -62,17 +80,23 @@ public class Square {
 		return wasSet;
 	}
 
-	public String getCharacter(){
-		if(hasPartOf()) {
-			if(accessible)
-				return "   ";
-			return " " + partOf.getName().charAt(0) + " ";
+	/**
+	 * @return The text representation of this cell for displaying the board
+	 */
+	public String getCharacter() {
+		if (hasPartOf()) {
+			if (accessible)
+				return "   "; // Room entry
+			return " " + partOf.getName().charAt(0) + " "; //Room body
 		}
-		if(!accessible)
-			return "WW|";
-		return "__|";
+		if (!accessible)
+			return "WW|"; // Inaccessible square outside a room
+		return "__|"; // Standard square
 	}
-	
+
+	/**
+	 * @return The text position of this square
+	 */
 	public String getPosition() {
 		return position;
 	}

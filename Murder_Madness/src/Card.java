@@ -5,5 +5,8 @@
  */
 public interface Card {
 	
+	/**
+	 * @return Get the name of the object this card represents
+	 */
 	public String getName();
 }

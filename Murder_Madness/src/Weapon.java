@@ -1,4 +1,5 @@
 /**
+ * A weapon that in part of the game
  * 
  * @author Runtime Terror
  */
@@ -18,6 +19,12 @@ public class Weapon {
 	// CONSTRUCTOR
 	// ------------------------
 
+	/**
+	 * Create a new weapon with the given name and location (Room)
+	 * 
+	 * @param aName
+	 * @param aLocation Room to create weapon in
+	 */
 	public Weapon(String aName, Room aLocation) {
 		name = aName;
 		if (!setLocation(aLocation)) {
@@ -29,24 +36,28 @@ public class Weapon {
 	// ------------------------
 	// INTERFACE
 	// ------------------------
-
-	public boolean setName(String aName) {
-		boolean wasSet = false;
-		name = aName;
-		wasSet = true;
-		return wasSet;
-	}
-
+	
+	/**
+	 * @return Name of this room
+	 */
 	public String getName() {
 		return name;
 	}
 
-	/* Code from template association_GetOne */
+	/**
+	 * @return Room this weapon is in
+	 */
 	public Room getLocation() {
 		return location;
 	}
 
-	/* Code from template association_SetUnidirectionalOne */
+	
+	/**
+	 * Set the location of the weapon to the given room
+	 * 
+	 * @param aNewLocation Location to move the weapon too
+	 * @return If the move was successful
+	 */
 	public boolean setLocation(Room aNewLocation) {
 		boolean wasSet = false;
 		if (aNewLocation != null) {
@@ -54,10 +65,6 @@ public class Weapon {
 			wasSet = true;
 		}
 		return wasSet;
-	}
-
-	public void delete() {
-		location = null;
 	}
 
 	public String toString() {

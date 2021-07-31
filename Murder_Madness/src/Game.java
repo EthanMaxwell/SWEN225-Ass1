@@ -1,3 +1,5 @@
+import java.awt.Graphics;
+import java.awt.event.MouseEvent;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -11,7 +13,7 @@ import java.util.stream.Stream;
  * 
  * @author Runtime Terror
  */
-public class Game {
+public class Game extends GUI{
 
 	// ------------------------
 	// MEMBER VARIABLES
@@ -644,5 +646,17 @@ public class Game {
 	public int indexOfCharacter(Character aCharacter) {
 		int index = characters.indexOf(aCharacter);
 		return index;
+	}
+
+	@Override
+	protected void redraw(Graphics g) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	protected void onClick(MouseEvent e) {
+		// TODO Auto-generated method stub
+		
 	}
 }

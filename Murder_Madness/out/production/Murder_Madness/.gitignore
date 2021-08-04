@@ -6,3 +6,8 @@
 /GUI$3.class
 /GUI$4.class
 /GUI$5.class
+/GUI$DrawArea.class
+/Game$GameState.class
+/Game$GameStateMakingGuess.class
+/Game$GameStateMakingSolve.class
+/GameCode/

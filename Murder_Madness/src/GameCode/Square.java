@@ -1,3 +1,4 @@
+package GameCode;
 /**
  * A single square that helps to form the game board
  * 

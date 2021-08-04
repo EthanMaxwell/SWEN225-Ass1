@@ -1,3 +1,4 @@
+package GameCode;
 /**
  * A weapon that in part of the game
  * 

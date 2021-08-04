@@ -1,3 +1,4 @@
+package GameCode;
 import java.awt.Graphics;
 import java.awt.event.MouseEvent;
 import java.io.BufferedReader;
@@ -8,12 +9,12 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 /**
- * Repents a entire game of Murder Mystery.
- * Can be run with main directly to create a new game.
+ * Repents a entire game of Murder Mystery. Can be run with main directly to
+ * create a new game.
  * 
  * @author Runtime Terror
  */
-public class Game extends GUI{
+public class Game extends Observable {
 
 	// ------------------------
 	// MEMBER VARIABLES
@@ -26,7 +27,24 @@ public class Game extends GUI{
 	private List<Weapon> weapons;
 	private CardTriplet solution;
 	private int playerNum; // Number of people playing the game
-	private boolean gameOver = false; // You can make this global if needed ;^)
+
+	// Game State Machines
+	public enum GameState {
+		SelectPlayerNumber, RollDice, AskToStay, MovePlayer, AskGuessOrSolve, MakingGuess, MakingSolve, PlayerOut,
+		GameWon
+	}
+
+	public enum GameStateMakingGuess {
+		Null, SelectingWeapon, SelectingPlayer, Refuting
+	}
+
+	public enum GameStateMakingSolve {
+		Null, SolveSelectingWeapon, SolveSelectingPlayer
+	}
+
+	private GameState gameState = GameState.SelectPlayerNumber;
+	private GameStateMakingGuess gameStateMakingGuess = null;
+	private GameStateMakingSolve gameStateMakingSolve = null;
 
 	/**
 	 * Create a new game object, thus starting the game
@@ -37,19 +55,18 @@ public class Game extends GUI{
 		Game game = new Game();
 	}
 
-	// ------------------------
-	// CONSTRUCTOR
-	// ------------------------
+	public Game() {
+		addObserver(new GUI());
+		setChanged();
+		notifyObservers();
+	}
 
 	/**
-	 * Create a new game object, setup all object require to run game so they are
-	 * ready to go and then start it up
+	 * Setup the game board
 	 */
-	public Game() {
-		System.out.println("Welcome to a game of Murder Madness!");
-		playerNum = Integer.parseInt(
-				restrictedAsk("How many players? (3 or 4) ", "Error - please enter 3 or 4", Arrays.asList("3", "4")));
-
+	public void setupBoard(int playerNum) {
+		this.playerNum = playerNum;
+		
 		createRooms();
 
 		createBoard();
@@ -59,10 +76,8 @@ public class Game extends GUI{
 		createWeapons();
 
 		createCards();
-
-		System.out.println("All setup :^)");
-
-		playGame();
+		
+		gameState = GameState.RollDice;
 	}
 
 	/**
@@ -248,6 +263,7 @@ public class Game extends GUI{
 	 * Make the game loop run
 	 */
 	private void playGame() {
+		boolean gameOver = false;
 		// Run game starting from a random player until it's gameOver
 		for (int turnNum = (int) (Math.random() * playerNum); !gameOver; turnNum++) {
 			// Check that at least one player can still take turns
@@ -275,9 +291,9 @@ public class Game extends GUI{
 			System.out.println("You rolled a " + diceRoll + "!");
 
 			// If in a room ask if they want to move or stay
-			if (!takingTurn.isInRoom()
-					|| restrictedAsk("Would you like to stay the " + takingTurn.getInRoom().getName() + "?\n 1 - Stay	2 - Move",
-							"Error - please enter 1 or 2", Arrays.asList("1", "2")).equals("2")) {
+			if (!takingTurn.isInRoom() || restrictedAsk(
+					"Would you like to stay the " + takingTurn.getInRoom().getName() + "?\n 1 - Stay	2 - Move",
+					"Error - please enter 1 or 2", Arrays.asList("1", "2")).equals("2")) {
 				movePlayer(takingTurn, diceRoll);
 			}
 
@@ -378,7 +394,7 @@ public class Game extends GUI{
 	/**
 	 * Allows the given player to move by the given dice roll
 	 * 
-	 * @param player Player that is allowed to move
+	 * @param player   Player that is allowed to move
 	 * @param diceRoll The dice roll to show max move distance
 	 */
 	private void movePlayer(Character player, int diceRoll) {
@@ -418,7 +434,7 @@ public class Game extends GUI{
 				}
 			}
 		}
-		
+
 		roomDests.remove(player.getInRoom());
 
 		// Show options
@@ -566,11 +582,10 @@ public class Game extends GUI{
 		}
 	}
 
-	
 	/**
 	 * Forces the given player to refute the given card triplet
 	 * 
-	 * @param refuter Person who must refute
+	 * @param refuter  Person who must refute
 	 * @param toRefute CardTriplet to refute
 	 * @return The card they wish to show (null if no card to show)
 	 */
@@ -648,15 +663,37 @@ public class Game extends GUI{
 		return index;
 	}
 
-	@Override
-	protected void redraw(Graphics g) {
-		// TODO Auto-generated method stub
-		
+	/**
+	 * @return The current game state
+	 */
+	public GameState getGameState() {
+		return gameState;
 	}
 
-	@Override
+	/**
+	 * @return The current state of making a guess
+	 */
+	public GameStateMakingGuess getGameStateMakingGuess() {
+		return gameStateMakingGuess;
+	}
+
+	/**
+	 * @return The current state of making a solve
+	 */
+	public GameStateMakingSolve getGameStateMakingSolve() {
+		return gameStateMakingSolve;
+	}
+
+	protected void redraw(Graphics g) {
+		// TODO Auto-generated method stub
+
+	}
+
 	protected void onClick(MouseEvent e) {
 		// TODO Auto-generated method stub
-		
+	}
+
+	protected void onDrag(MouseEvent e) {
+		// TODO Auto-generated method stub
 	}
 }

@@ -1,3 +1,4 @@
+package GameCode;
 import java.util.*;
 /**
  * Represents a room that is a group of squares with a name

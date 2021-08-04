@@ -1,3 +1,4 @@
+package GameCode;
 import java.util.*;
 /**
  * Is a set of three objects: one room, weapon and character.

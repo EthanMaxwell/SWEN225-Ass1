@@ -1,3 +1,4 @@
+package GameCode;
 /**
  * A card that represents a room
  * 

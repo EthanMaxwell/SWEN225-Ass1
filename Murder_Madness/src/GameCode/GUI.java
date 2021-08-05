@@ -46,11 +46,10 @@ public class GUI implements Observer {
 		// Create the bar for the buttons
 		JPanel buttonBar = new JPanel();
 
-		JButton butt1 = new JButton("Press me");
-		butt1.addActionListener(new ActionListener() {
+		JButton rollDice = new JButton("Roll Dice");
+		rollDice.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent ev) {
-				frame.repaint();
-				// JOptionPane.showMessageDialog(frame, "Cheese is a loaf of milk");
+				view.rollDice();
 			}
 		});
 
@@ -63,7 +62,7 @@ public class GUI implements Observer {
 			}
 		});
 
-		buttonBar.add(butt1);
+		buttonBar.add(rollDice);
 		buttonBar.add(butt2);
 
 		// Make drawing area
@@ -95,8 +94,14 @@ public class GUI implements Observer {
 						JOptionPane.YES_NO_CANCEL_OPTION, JOptionPane.QUESTION_MESSAGE, null, options, options[0]);
 				game.setupBoard(n + 3);
 			}
+			else {
+				drawBaord(g, game);
+			}
 		}
-		// TODO : make it draw the game, not a circle...
+	}
+	
+	private void drawBaord(Graphics g, Game game){
+		// TODO : draw out the game board
 	}
 
 	private void drawGame() {

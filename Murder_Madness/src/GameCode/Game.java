@@ -1,4 +1,5 @@
 package GameCode;
+
 import java.awt.Graphics;
 import java.awt.event.MouseEvent;
 import java.io.BufferedReader;
@@ -25,13 +26,18 @@ public class Game extends Observable {
 	private List<Character> characters;
 	private List<Room> rooms;
 	private List<Weapon> weapons;
-	private CardTriplet solution;
+	private CardTriplet solution = new CardTriplet();
+	private CardTriplet currentGuess;
 	private int playerNum; // Number of people playing the game
+	private int playerTurn; // Number of the player currently taking their turn
+	private int currentRefuter; // Number of the current player refuting
+	private Map<Character, Card> refuteCards = new HashMap<>();
+	private int diceRoll;
 
 	// Game State Machines
 	public enum GameState {
 		SelectPlayerNumber, RollDice, AskToStay, MovePlayer, AskGuessOrSolve, MakingGuess, MakingSolve, PlayerOut,
-		GameWon
+		GameOver, ShowRefute
 	}
 
 	public enum GameStateMakingGuess {
@@ -39,7 +45,7 @@ public class Game extends Observable {
 	}
 
 	public enum GameStateMakingSolve {
-		Null, SolveSelectingWeapon, SolveSelectingPlayer
+		Null, SelectingWeapon, SelectingPlayer
 	}
 
 	private GameState gameState = GameState.SelectPlayerNumber;
@@ -57,27 +63,40 @@ public class Game extends Observable {
 
 	public Game() {
 		addObserver(new GUI());
+		update();
+	}
+
+	/**
+	 * Called to show that the view should be updated
+	 */
+	private void update() {
 		setChanged();
 		notifyObservers();
 	}
 
 	/**
-	 * Setup the game board
+	 * For state machine. Setup the game board as player number was selected
+	 * 
+	 * @param playerNum The number of players to setup the game for
 	 */
 	public void setupBoard(int playerNum) {
-		this.playerNum = playerNum;
-		
-		createRooms();
+		if (gameState == GameState.SelectPlayerNumber) {
+			this.playerNum = playerNum;
 
-		createBoard();
+			createRooms();
 
-		createCharacters();
+			createBoard();
 
-		createWeapons();
+			createCharacters();
 
-		createCards();
-		
-		gameState = GameState.RollDice;
+			createWeapons();
+
+			createCards();
+
+			playerTurn = (int) (Math.random() * playerNum);
+			setGameState(GameState.RollDice);
+			update();
+		}
 	}
 
 	/**
@@ -262,6 +281,7 @@ public class Game extends Observable {
 	/**
 	 * Make the game loop run
 	 */
+	@Deprecated
 	private void playGame() {
 		boolean gameOver = false;
 		// Run game starting from a random player until it's gameOver
@@ -326,7 +346,7 @@ public class Game extends Observable {
 	 * @param restrictedValues
 	 * @return The validated input the user entered in lower case
 	 */
-
+	@Deprecated
 	public String restrictedAsk(String question, String errorMsg, List<String> restrictedValues) {
 		boolean found = false;
 		String result = "";
@@ -371,6 +391,7 @@ public class Game extends Observable {
 	 * 
 	 * @param number Number of player to ask for
 	 */
+	@Deprecated
 	private void askForPlayer(int number) {
 		System.out.println(System.lineSeparator().repeat(100000));
 		System.out.print("Please hand the device to player " + (number + 1) + " (" + characters.get(number).getName()
@@ -381,6 +402,7 @@ public class Game extends Observable {
 	/**
 	 * Wait of the enter key to be pressed
 	 */
+	@Deprecated
 	private void waitForEnter() {
 		final BufferedReader input = new BufferedReader(new InputStreamReader(System.in));
 
@@ -397,6 +419,7 @@ public class Game extends Observable {
 	 * @param player   Player that is allowed to move
 	 * @param diceRoll The dice roll to show max move distance
 	 */
+	@Deprecated
 	private void movePlayer(Character player, int diceRoll) {
 		// To store destinations
 		Set<Square> dests = new HashSet<>();
@@ -462,6 +485,53 @@ public class Game extends Observable {
 				}
 			}
 		}
+	}
+
+	/**
+	 * Get the locations that the player taking their turn can move to with the
+	 * current dice roll
+	 * 
+	 * @return A set of the locations (Rooms or squares)
+	 */
+	public Set<Location> canMoveTo() {
+		Set<Location> dests = new HashSet<>();
+
+		// Setup fringe
+		Queue<List<Square>> fringe = new LinkedList<>();
+		fringe.add(Arrays.asList(takingTurn().getLocation())); // Starting location
+
+		while (!fringe.isEmpty()) {
+			List<Square> curPath = fringe.poll();
+
+			// Extract the current end of the path
+			Square cur = curPath.get(curPath.size() - 1);
+
+			// Search all neighbours for more paths
+			for (Square dest : getNeighbours(cur)) {
+				// Can't visit a already visited square
+				if (!curPath.contains(dest)) {
+					// Create the new path
+					List<Square> newPath = new ArrayList<>(curPath);
+					newPath.add(dest);
+
+					// If the square is part of a room the player to access that room
+					if (dest.hasPartOf())
+						dests.add(dest.getPartOf());
+
+					// If the player has more moves add path to fringe
+					if (newPath.size() < diceRoll + 1)
+						fringe.add(newPath);
+
+					// If out of moves and not in a room record destination
+					if (!dest.hasPartOf() && newPath.size() >= diceRoll + 1)
+						dests.add(dest);
+				}
+			}
+		}
+
+		dests.remove(takingTurn().getInRoom());
+
+		return dests;
 	}
 
 	/**
@@ -536,6 +606,7 @@ public class Game extends Observable {
 	 * 
 	 * @param makingGuess Player making the guess
 	 */
+	@Deprecated
 	public void makeGuess(Character makingGuess) {
 		Room inRoom = makingGuess.getInRoom();
 		CardTriplet guessToRefute = askForGuess(inRoom);
@@ -566,6 +637,7 @@ public class Game extends Observable {
 	 * @param makingSolve Who is try to solve
 	 * @return If they were successful
 	 */
+	@Deprecated
 	public boolean trySolve(Character makingSolve) {
 		Room inRoom = makingSolve.getInRoom();
 		CardTriplet guessedSolution = askForGuess(makingSolve.getInRoom());
@@ -589,6 +661,7 @@ public class Game extends Observable {
 	 * @param toRefute CardTriplet to refute
 	 * @return The card they wish to show (null if no card to show)
 	 */
+	@Deprecated
 	public Card refute(Character refuter, CardTriplet toRefute) {
 		askForPlayer(characters.indexOf(refuter));
 		System.out.println("The cards to refute are: " + toRefute.getRoom().getName() + ", "
@@ -640,6 +713,7 @@ public class Game extends Observable {
 	 * @param roomToUse Room to use in guess
 	 * @return The created CardTriplet of the guess
 	 */
+	@Deprecated
 	private CardTriplet askForGuess(Room roomToUse) {
 		int WeaponGuess = Integer
 				.parseInt(restrictedAsk("Press: 1 - Broom, 2 - Scissors, 3 - Knife, 4 - Shovel, 5 - iPad",
@@ -664,6 +738,33 @@ public class Game extends Observable {
 	}
 
 	/**
+	 * Set the game state to the given state. Never directly change the game state
+	 * instead call this as it runs all ENTERY code of all states!
+	 * 
+	 * @param aGameState Game state to change to
+	 */
+	private void setGameState(GameState aGameState) {
+		gameState = aGameState;
+
+		// entry actions and do activities
+		switch (gameState) {
+		case RollDice:
+			playerTurn++;
+			playerTurn = playerTurn % playerNum;
+			break;
+		case MakingGuess:
+			gameStateMakingGuess = GameStateMakingGuess.SelectingWeapon;
+			// Reset the refuting data
+			currentRefuter = (playerTurn + 1) % playerNum;
+			refuteCards.clear();
+			break;
+		case MakingSolve:
+			gameStateMakingSolve = GameStateMakingSolve.SelectingWeapon;
+			break;
+		}
+	}
+
+	/**
 	 * @return The current game state
 	 */
 	public GameState getGameState() {
@@ -678,22 +779,167 @@ public class Game extends Observable {
 	}
 
 	/**
+	 * For that state machine. Roll the dice if in correct game state
+	 */
+	public void rollDice() {
+		if (gameState == GameState.RollDice) {
+			diceRoll = (int) (Math.random() * 6) + (int) (Math.random() * 6) + 2;
+			if (takingTurn().isInRoom()) {
+				setGameState(GameState.AskToStay);
+			} else {
+				setGameState(GameState.MovePlayer);
+			}
+			update();
+		}
+	}
+
+	/**
+	 * For that state machine. Called after the the user is asked if they want to
+	 * stay in their current room or move
+	 * 
+	 * @param staying If the player is staying
+	 */
+	public void askToStay(boolean staying) {
+		if (gameState == GameState.AskToStay) {
+			if (staying) {
+				setGameState(GameState.AskGuessOrSolve);
+			} else {
+				setGameState(GameState.MovePlayer);
+			}
+			update();
+		}
+	}
+
+	/**
+	 * For that state machine. Called after the the user is asked if they want to
+	 * make a guess or solve attempt
+	 * 
+	 * @param guess If they want to guess (or solve)
+	 */
+	public void askGuessOrSolve(boolean guess) {
+		if (gameState == GameState.AskGuessOrSolve) {
+			if (guess) {
+				setGameState(GameState.MakingGuess);
+			} else {
+				setGameState(GameState.MakingSolve);
+			}
+			update();
+		}
+	}
+
+	/**
+	 * For that state machine. Move the player currently taking their turn to the
+	 * given location
+	 * 
+	 * @param newLoc Location (Room or Square) to move them to
+	 */
+	public void MovePlayer(Location newLoc) {
+		if (gameState == GameState.MovePlayer) {
+			if (newLoc instanceof Square) {
+				takingTurn().setLocation((Square) newLoc);
+			}
+			if (newLoc instanceof Room) {
+				moveToRoom(takingTurn(), (Room) newLoc);
+			}
+			setGameState(GameState.MakingGuess);
+			update();
+		}
+	}
+
+	/**
+	 * For that state machine. Called when the player has selected their weapon when
+	 * solving OR guessing
+	 * 
+	 * @param w The weapon they chose
+	 */
+	public void weaponSelected(Weapon w) {
+		if (gameState == GameState.MakingGuess || gameState == GameState.MakingSolve) {
+			currentGuess.setWeapon(w);
+			if (gameState == GameState.MakingGuess) {
+				gameStateMakingGuess = GameStateMakingGuess.SelectingPlayer;
+			} else {
+				gameStateMakingSolve = GameStateMakingSolve.SelectingPlayer;
+			}
+			update();
+		}
+	}
+
+	/**
+	 * For that state machine. Called when the player has selected their character
+	 * when solving OR guessing
+	 * 
+	 * @param c The character they chose
+	 */
+	public void playerSelected(Character c) {
+		if (gameState == GameState.MakingGuess || gameState == GameState.MakingSolve) {
+			currentGuess.setCharacter(c);
+			if (gameState == GameState.MakingGuess) {
+				gameStateMakingGuess = GameStateMakingGuess.Refuting;
+			} else {
+				currentGuess.setRoom(takingTurn().getInRoom());
+				if (currentGuess.equals(solution)) {
+					setGameState(GameState.GameOver);
+				} else {
+					setGameState(GameState.PlayerOut);
+				}
+			}
+			update();
+		}
+	}
+
+	/**
+	 * For that state machine. Called when the player as selected "ok" if the "you
+	 * are out" view
+	 */
+	public void acceptedOut() {
+		if (gameState == GameState.PlayerOut) {
+			takingTurn().setOut();
+			setGameState(GameState.RollDice);
+			update();
+		}
+	}
+
+	/**
+	 * For that state machine. Set the card to be show by the currently refuting
+	 * player to this
+	 * 
+	 * @param cardTheyRefuted
+	 */
+	public void refuting(Card cardTheyRefuted) {
+		if (gameState == GameState.MakingGuess) {
+			refuteCards.put(characters.get(currentRefuter), cardTheyRefuted);
+			// Move to next refuter
+			currentRefuter = (currentRefuter + 1) % playerNum;
+			// All refutes done, exit state
+			if (currentRefuter == playerTurn) {
+				setGameState(GameState.ShowRefute);
+			}
+			update();
+		}
+	}
+
+	/**
+	 * For that state machine Called when the player as selected "ok" if the "you
+	 * were show the cards" view
+	 */
+	public void acceptedRefute() {
+		if (gameState == GameState.ShowRefute) {
+			setGameState(GameState.RollDice);
+			update();
+		}
+	}
+
+	/**
+	 * @return The player currently taking their turn
+	 */
+	public Character takingTurn() {
+		return characters.get(playerTurn);
+	}
+
+	/**
 	 * @return The current state of making a solve
 	 */
 	public GameStateMakingSolve getGameStateMakingSolve() {
 		return gameStateMakingSolve;
-	}
-
-	protected void redraw(Graphics g) {
-		// TODO Auto-generated method stub
-
-	}
-
-	protected void onClick(MouseEvent e) {
-		// TODO Auto-generated method stub
-	}
-
-	protected void onDrag(MouseEvent e) {
-		// TODO Auto-generated method stub
 	}
 }

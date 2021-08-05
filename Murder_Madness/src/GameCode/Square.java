@@ -4,7 +4,7 @@ package GameCode;
  * 
  * @author Runtime Terror
  */
-public class Square {
+public class Square implements Location{
 
 	// ------------------------
 	// MEMBER VARIABLES
@@ -84,6 +84,7 @@ public class Square {
 	/**
 	 * @return The text representation of this cell for displaying the board
 	 */
+	@Deprecated
 	public String getCharacter() {
 		if (hasPartOf()) {
 			if (accessible)

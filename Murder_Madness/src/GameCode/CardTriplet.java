@@ -65,6 +65,15 @@ public class CardTriplet {
 		}
 	}
 
+	/**
+	 * Create an new empty CardTriplet
+	 */
+	public CardTriplet() {
+		room = null;
+		character = null;
+		weapon = null;
+	}
+
 	// ------------------------
 	// INTERFACE
 	// ------------------------

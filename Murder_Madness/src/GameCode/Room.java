@@ -5,7 +5,7 @@ import java.util.*;
  * 
  * @author Runtime Terror
  */
-public class Room {
+public class Room implements Location{
 
 	// ------------------------
 	// MEMBER VARIABLES

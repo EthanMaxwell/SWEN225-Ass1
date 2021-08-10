@@ -1,7 +1,7 @@
 package GameCode;
 
-import java.awt.Graphics;
-import java.awt.event.MouseEvent;
+import GUI.GUI;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -76,7 +76,7 @@ public class Game extends Observable {
 
 	/**
 	 * For state machine. Setup the game board as player number was selected
-	 * 
+	 *
 	 * @param playerNum The number of players to setup the game for
 	 */
 	public void setupBoard(int playerNum) {
@@ -95,6 +95,7 @@ public class Game extends Observable {
 
 			playerTurn = (int) (Math.random() * playerNum);
 			setGameState(GameState.RollDice);
+			System.out.println("Game Start");
 			update();
 		}
 	}
@@ -781,6 +782,7 @@ public class Game extends Observable {
 	/**
 	 * For that state machine. Roll the dice if in correct game state
 	 */
+	//TODO Add dices one and two
 	public void rollDice() {
 		if (gameState == GameState.RollDice) {
 			diceRoll = (int) (Math.random() * 6) + (int) (Math.random() * 6) + 2;

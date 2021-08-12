@@ -161,7 +161,7 @@ public class GUI implements Observer {
 	private void drawGame(Graphics g) {
 		if (view != null) {
 			g.drawOval(100, 100, 100, 100);
-			drawBaord(g, view);
+			drawBoard(g, view);
 		}
 	}
 
@@ -182,7 +182,7 @@ public class GUI implements Observer {
 		}
 	}
 
-	private void drawBaord(Graphics g, Game game) {
+	private void drawBoard(Graphics g, Game game) {
 		// TODO : draw out the game board
 	}
 

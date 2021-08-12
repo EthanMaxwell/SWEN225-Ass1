@@ -5,13 +5,15 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.Observable;
 import java.util.Observer;
+import java.util.stream.Collectors;
 
 import javax.swing.*;
+
+import java.util.*;
 
 import GameCode.Game;
 import GameCode.Game.GameState;
 
-//The "interogating" is just asking about the game start like player locations and all that jazz.
 /**
  * TODO Write me
  */
@@ -31,6 +33,11 @@ public class GUI implements Observer {
 	private MenuBar menuBar;
 
 	private Dimension ScreenDimension;
+	private boolean setup = false;
+
+	private final Font FONT = new Font("SansSerif", Font.BOLD, 20);
+
+	private Map<GameCode.Character, String> names = new HashMap<>();
 
 	public GUI() {
 		initialise();
@@ -79,19 +86,19 @@ public class GUI implements Observer {
 		gbc.weighty = 1;
 
 		// Make the width of boardPanel 70% the size of the screen
-		gbc.weightx = 0.7;
+		gbc.weightx = 1;
 		boardPanel.setOpaque(true);
 		frame.add(boardPanel, gbc);
 
 		// Make the width of controlPanel 30% the size of the screen
-		gbc.weightx = 0.3;
+		gbc.weightx = 0.0;
 		controlPanel.setOpaque(true);
 		frame.add(controlPanel, gbc);
 
 		frame.pack();
 		frame.setSize(Toolkit.getDefaultToolkit().getScreenSize()); // Set frame dimension
 		frame.setLocationByPlatform(true);
-		frame.setVisible(true);
+
 	}
 
 	public int getNumPlayers() {
@@ -168,16 +175,7 @@ public class GUI implements Observer {
 	private void drawControl(Graphics g) {
 		if (view != null) {
 			if (view.getGameState().equals(Game.GameState.SelectPlayerNumber)) {
-				/*JRadioButton r1 = new JRadioButton("A) Male");
-				JRadioButton r2 = new JRadioButton("B) Female");
-				r1.setBounds(75, 50, 100, 30);
-				r2.setBounds(75, 100, 100, 30);
-				ButtonGroup bg = new ButtonGroup();
-				bg.add(r1);
-				bg.add(r2);
-				controlPanel.add(r1);
-				controlPanel.add(r2);
-				controlPanel.setVisible(true);*/
+
 			}
 		}
 	}
@@ -190,11 +188,98 @@ public class GUI implements Observer {
 		frame.repaint();
 	}
 
+	private void setup() {
+		// Title at the top
+		JLabel title = new JLabel("Player " + (names.size() + 1) + ":");
+		title.setFont(FONT);
+		controlPanel.add(title);
+
+		// Name box title
+		JLabel nameTitle = new JLabel("Enter your name:");
+		nameTitle.setFont(FONT);
+		controlPanel.add(nameTitle);
+
+		// Box for player to enter their name
+		JTextField nameBox = new JTextField("Name");
+		nameBox.setFont(FONT);
+		nameBox.setMaximumSize(new Dimension(300, 30));
+		controlPanel.add(nameBox);
+
+		// Title for character selection
+		JLabel charTitle = new JLabel("Select your character:");
+		charTitle.setFont(FONT);
+		controlPanel.add(charTitle);
+
+		// Character selection radio buttons
+		java.util.List<JRadioButton> options = view.getCharacters().stream().map(i -> new JRadioButton(i.getName()))
+				.collect(Collectors.toList());
+		ButtonGroup charSelect = new ButtonGroup();
+		for (int i = 0; i < options.size(); i++) {
+			JRadioButton b = options.get(i);
+			b.setOpaque(false);
+			b.setFont(FONT);
+			controlPanel.add(b);
+			charSelect.add(b);
+		}
+
+		// Next button to add another player
+		JButton next = new JButton("Next");
+		next.setFont(FONT);
+		controlPanel.add(next);
+
+		// Start button to start game
+		JButton start = new JButton("START");
+		start.setFont(FONT);
+		start.setVisible(false);
+		controlPanel.add(start);
+
+		// What happens when next is pressed
+		next.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent ev) {
+				// Search for the selected button
+				for (int i = 0; i < options.size(); i++) {
+					if (options.get(i).isSelected()) {
+						// Record What they selected
+						names.put(view.getCharacters().get(i), nameBox.getText());
+						// Removed the selected option
+						options.get(i).setSelected(false);
+						options.get(i).setEnabled(false);
+						// Reset the name box
+						nameBox.setText("Name");
+						// Update the player number in title
+						title.setText("Player " + (names.size() + 1) + ":");
+						// Check if the start button should become visable
+						if (names.size() >= 3) {
+							start.setVisible(true);
+						}
+						// Action complete
+						return;
+					}
+				}
+			}
+		});
+
+		start.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent ev) {
+				// Deal cards to players
+				view.dealHands(names.keySet());
+				// Remove no longer needed objects
+				controlPanel.removeAll();
+			}
+		});
+
+		frame.setVisible(true);
+		setup = true;
+
+	}
+
 	@Override
 	public void update(Observable o, Object arg) {
 		if (o instanceof Game) {
 			Game game = (Game) o;
 			view = game;
+			if (!setup)
+				setup();
 			drawGame();
 		}
 	}

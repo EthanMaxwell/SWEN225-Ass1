@@ -22,7 +22,7 @@ public class GameTests {
 
 		// Game should require player number to be set
 		assertEquals(Game.GameState.SelectPlayerNumber, game.getGameState());
-		assertTrue(game.setupBoard(4));
+		assertTrue(game.dealHands(Set.copyOf(game.getCharacters())));
 
 		// Player through 100 player turns
 		for (int i = 0; i < 100; i++) {
@@ -50,7 +50,7 @@ public class GameTests {
 	@Test
 	public void test_02() {
 		Game game = new Game(new noDisplay());
-		assertTrue(game.setupBoard(3));
+		assertTrue(game.dealHands(Set.copyOf(game.getCharacters())));
 
 		// Record current player locations
 		Map<GameCode.Character, Location> positions = game.getCharacters().stream()
@@ -78,7 +78,7 @@ public class GameTests {
 	@Test
 	public void test_03() {
 		Game game = new Game(new noDisplay());
-		assertTrue(game.setupBoard(4));
+		assertTrue(game.dealHands(Set.copyOf(game.getCharacters())));
 
 		// Try to move a player into a room 1000 times.
 		for (int i = 0; i < 1000; i++) {

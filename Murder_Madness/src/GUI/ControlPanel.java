@@ -6,9 +6,8 @@ import java.awt.*;
 public class ControlPanel extends JPanel {
 
     ControlPanel(){
-        this.setBackground(Color.blue);
-        this.setLayout(new GridBagLayout());
-
-
+        this.setBackground(new Color(200, 200, 255));
+        this.setBorder(BorderFactory.createEmptyBorder(50,25,25,25));
+        this.setLayout(new BoxLayout(this, BoxLayout.PAGE_AXIS));
     }
 }

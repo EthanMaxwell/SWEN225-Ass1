@@ -59,11 +59,20 @@ public class Game extends Observable {
 	 * @param args
 	 */
 	public static void main(String[] args) {
-		Game game = new Game(new GUI());
+		new Game(new GUI());
 	}
 
 	public Game(Observer gui) {
 		addObserver(gui);
+
+		createRooms();
+
+		createBoard();
+
+		createCharacters();
+
+		createWeapons();
+		
 		update();
 	}
 
@@ -76,28 +85,32 @@ public class Game extends Observable {
 	}
 
 	/**
-	 * For state machine. Setup the game board as player number was selected
+	 * For state machine. Deal hands for the player number that was selected
 	 *
-	 * @param playerNum The number of players to setup the game for
+	 * @param players The character that have players to setup the game for
 	 * @return If the state change could be applied
 	 */
-	public boolean setupBoard(int playerNum) {
-		if (gameState == GameState.SelectPlayerNumber || playerNum < 3 || playerNum > 4) {
-			this.playerNum = playerNum;
-
-			createRooms();
-
-			createBoard();
-
-			createCharacters();
-
-			createWeapons();
+	public boolean dealHands(Set <Character> players) {
+		if (gameState == GameState.SelectPlayerNumber || players.size() < 3 || players.size() > 4) {
+			//The NPC should be at the end of the character list
+			// Check if there is a NPC
+			if(players.size() == 3) {
+				// Find who will be the NPC
+				for(int i = 0; i < characters.size(); i++) {
+					Character c = characters.get(i);
+					if(!players.contains(c)) {
+						// Move NPC to the end of the character list
+						characters.remove(c);
+						characters.add(c);
+					}
+				}
+			}
+			this.playerNum = players.size();
 
 			createCards();
 
 			playerTurn = (int) (Math.random() * playerNum);
 			setGameState(GameState.RollDice);
-			System.out.println("Game Start");
 			update();
 			return true;
 		}
@@ -212,15 +225,10 @@ public class Game extends Observable {
 	 */
 	private void createCharacters() {
 		characters = new ArrayList<Character>();
-		if (playerNum == 4 || playerNum == 3) {
-			characters.add(new Character("Lucilla", board.getGameSquare(11, 1)));
-			characters.add(new Character("Bert", board.getGameSquare(1, 9)));
-			characters.add(new Character("Malina", board.getGameSquare(9, 22)));
-			characters.add(new Character("Percy", board.getGameSquare(22, 14)));
-
-		} else {
-			throw new RuntimeException("Unable to create Board");
-		}
+		characters.add(new Character("Lucilla", board.getGameSquare(11, 1)));
+		characters.add(new Character("Bert", board.getGameSquare(1, 9)));
+		characters.add(new Character("Malina", board.getGameSquare(9, 22)));
+		characters.add(new Character("Percy", board.getGameSquare(22, 14)));
 	}
 
 	/**
@@ -620,10 +628,10 @@ public class Game extends Observable {
 	public boolean refuting(Card cardTheyRefuted) {
 		if (gameState == GameState.MakingGuess) {
 			// Check if the card is in their hand
-			if(!characters.get(currentRefuter).getHand().contains(cardTheyRefuted)){
+			if (!characters.get(currentRefuter).getHand().contains(cardTheyRefuted)) {
 				return false;
 			}
-			
+
 			refuteCards.put(characters.get(currentRefuter), cardTheyRefuted);
 			// Move to next refuter
 			currentRefuter = (currentRefuter + 1) % playerNum;
@@ -665,25 +673,25 @@ public class Game extends Observable {
 	public int diceRoll() {
 		return diceOne + diceTwo;
 	}
-	
+
 	/**
 	 * @return The value roll on dice one
 	 */
 	public int getDiceOne() {
 		return diceOne;
 	}
-	
+
 	/**
 	 * @return The value roll on dice two
 	 */
 	public int getDiceTwo() {
 		return diceTwo;
 	}
-	
+
 	/**
 	 * @return All characters in the game
 	 */
-	public List<Character> getCharacters(){
+	public List<Character> getCharacters() {
 		return Collections.unmodifiableList(characters);
 	}
 

@@ -138,39 +138,4 @@ public class Board {
 	public int boardSize() {
 		return SIZE;
 	}
-
-	/**
-	 * Prints out the board, but requires player to be passed to it if are are to be
-	 * displayed
-	 * 
-	 * @param characters List of characters to be printed on the board
-	 */
-	public void printBoard(List<Character> characters) {
-		String print = "";
-		for (int y = 0; y < SIZE; y++) {
-			// Print the row number at start of each row
-			String temp = y < 10 ? " " + y : "" + y;
-			// Print out this squares text representation
-			for (int x = 0; x < SIZE; x++) {
-				temp += getGameSquare(x, y).getCharacter();
-			}
-			print += temp;
-			print += "\n";
-		}
-		print += " ";
-		
-		// Print the column letter below each column
-		for (int i = 0; i < SIZE; i++) {
-			print += " " + String.valueOf((char) (i + 'a')) + " ";
-		}
-		
-		// Print characters onto the correct squares
-		for (Character c : characters) {
-			int charPos = gameSquares.indexOf(c.getLocation());
-			charPos = (charPos + getY(charPos)) * 3 + 2;
-			print = print.substring(0, charPos) + c.getName().substring(0, 2) + print.substring(charPos + 2);
-		}
-		
-		System.out.println(print);
-	}
 }

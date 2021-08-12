@@ -32,7 +32,8 @@ public class Game extends Observable {
 	private int playerTurn; // Number of the player currently taking their turn
 	private int currentRefuter; // Number of the current player refuting
 	private Map<Character, Card> refuteCards = new HashMap<>();
-	private int diceRoll;
+	private int diceOne;
+	private int diceTwo;
 
 	// Game State Machines
 	public enum GameState {
@@ -58,11 +59,11 @@ public class Game extends Observable {
 	 * @param args
 	 */
 	public static void main(String[] args) {
-		Game game = new Game();
+		Game game = new Game(new GUI());
 	}
 
-	public Game() {
-		addObserver(new GUI());
+	public Game(Observer gui) {
+		addObserver(gui);
 		update();
 	}
 
@@ -78,9 +79,10 @@ public class Game extends Observable {
 	 * For state machine. Setup the game board as player number was selected
 	 *
 	 * @param playerNum The number of players to setup the game for
+	 * @return If the state change could be applied
 	 */
-	public void setupBoard(int playerNum) {
-		if (gameState == GameState.SelectPlayerNumber) {
+	public boolean setupBoard(int playerNum) {
+		if (gameState == GameState.SelectPlayerNumber || playerNum < 3 || playerNum > 4) {
 			this.playerNum = playerNum;
 
 			createRooms();
@@ -97,7 +99,9 @@ public class Game extends Observable {
 			setGameState(GameState.RollDice);
 			System.out.println("Game Start");
 			update();
+			return true;
 		}
+		return false;
 	}
 
 	/**
@@ -280,102 +284,6 @@ public class Game extends Observable {
 	// INTERFACE
 	// ------------------------
 	/**
-	 * Make the game loop run
-	 */
-	@Deprecated
-	private void playGame() {
-		boolean gameOver = false;
-		// Run game starting from a random player until it's gameOver
-		for (int turnNum = (int) (Math.random() * playerNum); !gameOver; turnNum++) {
-			// Check that at least one player can still take turns
-			if (allPlayersOut()) {
-				gameOver = true;
-				System.out.println("Everybody failed their solve attempts so everybody loses!!!\nThe solution was:");
-				solution.print();
-			}
-
-			Character takingTurn = characters.get(turnNum % playerNum);
-
-			// If the player is out skip their turn
-			if (takingTurn.isOut())
-				continue;
-
-			// System.out.println("\nIt's now player " + (turnNum % playerNum + 1) + " (" +
-			// takingTurn.getName() + ") turn");
-			askForPlayer(turnNum % playerNum);
-
-			board.printBoard(characters);
-			takingTurn.printHand();
-
-			// Roll the two dice
-			int diceRoll = (int) (Math.random() * 6) + (int) (Math.random() * 6) + 2;
-			System.out.println("You rolled a " + diceRoll + "!");
-
-			// If in a room ask if they want to move or stay
-			if (!takingTurn.isInRoom() || restrictedAsk(
-					"Would you like to stay the " + takingTurn.getInRoom().getName() + "?\n 1 - Stay	2 - Move",
-					"Error - please enter 1 or 2", Arrays.asList("1", "2")).equals("2")) {
-				movePlayer(takingTurn, diceRoll);
-			}
-
-			// Check if player is in a room so can make a guess or solve
-			if (takingTurn.isInRoom()) {
-				if (restrictedAsk("Would you like make a guess or attempt to solve?\n 1 - Guess	2 - Solve",
-						"Error - please enter 1 or 2", Arrays.asList("1", "2")).equals("1")) {
-					makeGuess(takingTurn);
-				} else {
-					if (trySolve(takingTurn)) {
-						System.out.println("Player " + (turnNum % playerNum) + " (" + takingTurn.getName()
-								+ ") Wins! The solution was:");
-						solution.print();
-						gameOver = true;
-					} else {
-						System.out.println("WRONG! You are out");
-						takingTurn.setOut();
-						gameOver = false;
-					}
-				}
-			}
-		}
-	}
-
-	/**
-	 * Ask input from the users but the input is restricted values
-	 * 
-	 * @param question
-	 * @param errorMsg
-	 * @param restrictedValues
-	 * @return The validated input the user entered in lower case
-	 */
-	@Deprecated
-	public String restrictedAsk(String question, String errorMsg, List<String> restrictedValues) {
-		boolean found = false;
-		String result = "";
-		final BufferedReader input = new BufferedReader(new InputStreamReader(System.in));
-		while (!found) {
-			System.out.print(question + "\n>");
-			try {
-				result = input.readLine().toLowerCase();
-			} catch (IOException e) {
-				System.err.println("I/O Error - " + e.getMessage());
-			}
-
-			for (String i : restrictedValues) {
-				if (result.equals(i.toLowerCase())) {
-					found = true;
-				}
-			}
-			if (!found) {
-				System.out.println(errorMsg);
-				System.out.println("Valid Inputs : " + restrictedValues);
-			}
-		}
-
-		return result;
-
-	}
-
-	/**
 	 * @return If all player are out and unable to take turns
 	 */
 	private boolean allPlayersOut() {
@@ -385,107 +293,6 @@ public class Game extends Observable {
 			}
 		}
 		return true;
-	}
-
-	/**
-	 * Ask for a player (by position in array) to be give the device
-	 * 
-	 * @param number Number of player to ask for
-	 */
-	@Deprecated
-	private void askForPlayer(int number) {
-		System.out.println(System.lineSeparator().repeat(100000));
-		System.out.print("Please hand the device to player " + (number + 1) + " (" + characters.get(number).getName()
-				+ ") and press enter when ready.");
-		waitForEnter();
-	}
-
-	/**
-	 * Wait of the enter key to be pressed
-	 */
-	@Deprecated
-	private void waitForEnter() {
-		final BufferedReader input = new BufferedReader(new InputStreamReader(System.in));
-
-		try {
-			input.readLine();
-		} catch (IOException e) {
-			System.err.println("I/O Error - " + e.getMessage());
-		}
-	}
-
-	/**
-	 * Allows the given player to move by the given dice roll
-	 * 
-	 * @param player   Player that is allowed to move
-	 * @param diceRoll The dice roll to show max move distance
-	 */
-	@Deprecated
-	private void movePlayer(Character player, int diceRoll) {
-		// To store destinations
-		Set<Square> dests = new HashSet<>();
-		Set<Room> roomDests = new HashSet<>();
-
-		// Setup fringe
-		Queue<List<Square>> fringe = new LinkedList<>();
-		fringe.add(Arrays.asList(player.getLocation())); // Starting location
-
-		while (!fringe.isEmpty()) {
-			List<Square> curPath = fringe.poll();
-
-			// Extract the current end of the path
-			Square cur = curPath.get(curPath.size() - 1);
-
-			// Search all neighbours for more paths
-			for (Square dest : getNeighbours(cur)) {
-				// Can't visit a already visited square
-				if (!curPath.contains(dest)) {
-					// Create the new path
-					List<Square> newPath = new ArrayList<>(curPath);
-					newPath.add(dest);
-
-					// If the square is part of a room the player to access that room
-					if (dest.hasPartOf())
-						roomDests.add(dest.getPartOf());
-
-					// If the player has more moves add path to fringe
-					if (newPath.size() < diceRoll + 1)
-						fringe.add(newPath);
-
-					// If out of moves and not in a room record destination
-					if (!dest.hasPartOf() && newPath.size() >= diceRoll + 1)
-						dests.add(dest);
-				}
-			}
-		}
-
-		roomDests.remove(player.getInRoom());
-
-		// Show options
-		System.out.println("Avaliable squares : " + dests);
-		System.out.println("Avaliable rooms : " + roomDests);
-
-		String responce = restrictedAsk("Where would you like to move too?", "Please enter a avaliable square or room.",
-				Stream.concat(dests.stream().map(i -> i.getPosition()), roomDests.stream().map(i -> i.getName()))
-						.collect(Collectors.toList()));
-
-		// Get the square form the user response
-		Square newLoc = board.gotFromCode(responce);
-
-		// If a square could be located from the response move to it
-		if (newLoc != null) {
-			player.setLocation(newLoc);
-		}
-		// If there was no square, then user entry must have been a room.
-		else {
-			for (Room r : rooms) {
-				if (r.getName().toLowerCase().equals(responce.toLowerCase())) {
-					// Room found, move player to it
-					moveToRoom(player, r);
-					break;
-				}
-			}
-		}
 	}
 
 	/**
@@ -520,11 +327,11 @@ public class Game extends Observable {
 						dests.add(dest.getPartOf());
 
 					// If the player has more moves add path to fringe
-					if (newPath.size() < diceRoll + 1)
+					if (newPath.size() < diceRoll() + 1)
 						fringe.add(newPath);
 
 					// If out of moves and not in a room record destination
-					if (!dest.hasPartOf() && newPath.size() >= diceRoll + 1)
+					if (!dest.hasPartOf() && newPath.size() >= diceRoll() + 1)
 						dests.add(dest);
 				}
 			}
@@ -603,98 +410,6 @@ public class Game extends Observable {
 	}
 
 	/**
-	 * Given player makes a guess
-	 * 
-	 * @param makingGuess Player making the guess
-	 */
-	@Deprecated
-	public void makeGuess(Character makingGuess) {
-		Room inRoom = makingGuess.getInRoom();
-		CardTriplet guessToRefute = askForGuess(inRoom);
-
-		this.moveToRoom(guessToRefute.getCharacter(), inRoom);
-		guessToRefute.getWeapon().setLocation(inRoom);
-
-		int curPLayerNum = characters.indexOf(makingGuess);
-		Card[] toSee = new Card[playerNum - 1];
-		for (int i = 1; i < playerNum; i++) {
-			toSee[i - 1] = refute(characters.get((curPLayerNum + i) % playerNum), guessToRefute);
-		}
-
-		askForPlayer(characters.indexOf(makingGuess));
-		System.out.println("You got shown:");
-		for (int i = 0; i < toSee.length; i++) {
-			int showNum = (curPLayerNum + i + 1) % playerNum;
-			System.out.println("Player " + (showNum + 1) + " (" + characters.get(showNum).getName() + ") showed you : "
-					+ (toSee[i] != null ? toSee[i] : "Nothing"));
-		}
-		System.out.println("Press enter when done");
-		waitForEnter();
-	}
-
-	/**
-	 * Given player attempts to solve the murder!
-	 * 
-	 * @param makingSolve Who is try to solve
-	 * @return If they were successful
-	 */
-	@Deprecated
-	public boolean trySolve(Character makingSolve) {
-		Room inRoom = makingSolve.getInRoom();
-		CardTriplet guessedSolution = askForGuess(makingSolve.getInRoom());
-
-		guessedSolution.getWeapon().setLocation(inRoom);
-		this.moveToRoom(guessedSolution.getCharacter(), inRoom);
-
-		// Returning from the method once solution is checked
-		if (guessedSolution.equals(solution)) {
-			return true;
-
-		} else {
-			return false;
-		}
-	}
-
-	/**
-	 * Forces the given player to refute the given card triplet
-	 * 
-	 * @param refuter  Person who must refute
-	 * @param toRefute CardTriplet to refute
-	 * @return The card they wish to show (null if no card to show)
-	 */
-	@Deprecated
-	public Card refute(Character refuter, CardTriplet toRefute) {
-		askForPlayer(characters.indexOf(refuter));
-		System.out.println("The cards to refute are: " + toRefute.getRoom().getName() + ", "
-				+ toRefute.getWeapon().getName() + ", " + toRefute.getCharacter().getName());
-
-		refuter.printHand();
-
-		List<Card> canRefute = toRefute.contains(refuter.getHand());
-		if (canRefute.size() == 0) {
-			System.out.println("You have no cards to show. Press enter when done.");
-			waitForEnter();
-			return null;
-		}
-		if (canRefute.size() == 1) {
-			System.out.println("You must show your " + canRefute.get(0).getName() + " card. Press enter when done.");
-			waitForEnter();
-			return canRefute.get(0);
-		}
-		Card showing = canRefute
-				.get(Integer
-						.parseInt(restrictedAsk(
-								"Please select the card to show:\n"
-										+ (canRefute.stream().map(c -> canRefute.indexOf(c) + 1 + " - " + c.getName())
-												.reduce((a, b) -> a + ", " + b)).get(),
-								"Error - Ender a number the corresponds to a card", makeSequence(canRefute.size())))
-						- 1);
-		System.out.println("You will show your " + showing.getName() + " card. Press enter when done.");
-		waitForEnter();
-		return showing;
-	}
-
-	/**
 	 * Make a list of strings of numbers from 1 to the given number
 	 * 
 	 * @param end The number to cut up to (included)
@@ -706,36 +421,6 @@ public class Game extends Observable {
 			ret.add(i + "");
 		}
 		return ret;
-	}
-
-	/**
-	 * Create a new guess from questions asked to the current player
-	 * 
-	 * @param roomToUse Room to use in guess
-	 * @return The created CardTriplet of the guess
-	 */
-	@Deprecated
-	private CardTriplet askForGuess(Room roomToUse) {
-		int WeaponGuess = Integer
-				.parseInt(restrictedAsk("Press: 1 - Broom, 2 - Scissors, 3 - Knife, 4 - Shovel, 5 - iPad",
-						"Error - please enter values 1 to 5 for respective weapons", makeSequence(5)));
-		Weapon guessedWeapon = weapons.get(WeaponGuess - 1);
-
-		int CharacterGuess = Integer.parseInt(restrictedAsk("Press: 1 - Lucilla, 2 - Bert, 3 - Maline, 4 - Percy",
-				"Error - please enter values 1 to 4 for respective characters", makeSequence(4)));
-		Character guessedCharacter = characters.get(CharacterGuess - 1);
-
-		// making required objects to check if the attempt was successful
-		return new CardTriplet(roomToUse, guessedWeapon, guessedCharacter);
-	}
-
-	/**
-	 * @param aCharacter The character to search for
-	 * @return The position of a character in the turns order
-	 */
-	public int indexOfCharacter(Character aCharacter) {
-		int index = characters.indexOf(aCharacter);
-		return index;
 	}
 
 	/**
@@ -781,18 +466,22 @@ public class Game extends Observable {
 
 	/**
 	 * For that state machine. Roll the dice if in correct game state
+	 * 
+	 * @return If the state change could be applied
 	 */
-	//TODO Add dices one and two
-	public void rollDice() {
+	public boolean rollDice() {
 		if (gameState == GameState.RollDice) {
-			diceRoll = (int) (Math.random() * 6) + (int) (Math.random() * 6) + 2;
+			diceOne = (int) (Math.random() * 6) + 1;
+			diceTwo = (int) (Math.random() * 6) + 1;
 			if (takingTurn().isInRoom()) {
 				setGameState(GameState.AskToStay);
 			} else {
 				setGameState(GameState.MovePlayer);
 			}
 			update();
+			return true;
 		}
+		return false;
 	}
 
 	/**
@@ -800,8 +489,9 @@ public class Game extends Observable {
 	 * stay in their current room or move
 	 * 
 	 * @param staying If the player is staying
+	 * @return If the state change could be applied
 	 */
-	public void askToStay(boolean staying) {
+	public boolean askToStay(boolean staying) {
 		if (gameState == GameState.AskToStay) {
 			if (staying) {
 				setGameState(GameState.AskGuessOrSolve);
@@ -809,7 +499,9 @@ public class Game extends Observable {
 				setGameState(GameState.MovePlayer);
 			}
 			update();
+			return true;
 		}
+		return false;
 	}
 
 	/**
@@ -817,8 +509,9 @@ public class Game extends Observable {
 	 * make a guess or solve attempt
 	 * 
 	 * @param guess If they want to guess (or solve)
+	 * @return If the state change could be applied
 	 */
-	public void askGuessOrSolve(boolean guess) {
+	public boolean askGuessOrSolve(boolean guess) {
 		if (gameState == GameState.AskGuessOrSolve) {
 			if (guess) {
 				setGameState(GameState.MakingGuess);
@@ -826,7 +519,9 @@ public class Game extends Observable {
 				setGameState(GameState.MakingSolve);
 			}
 			update();
+			return true;
 		}
+		return false;
 	}
 
 	/**
@@ -834,18 +529,22 @@ public class Game extends Observable {
 	 * given location
 	 * 
 	 * @param newLoc Location (Room or Square) to move them to
+	 * @return If the state change could be applied
 	 */
-	public void MovePlayer(Location newLoc) {
+	public boolean MovePlayer(Location newLoc) {
 		if (gameState == GameState.MovePlayer) {
 			if (newLoc instanceof Square) {
 				takingTurn().setLocation((Square) newLoc);
+				setGameState(GameState.RollDice);
 			}
 			if (newLoc instanceof Room) {
 				moveToRoom(takingTurn(), (Room) newLoc);
+				setGameState(GameState.AskGuessOrSolve);
 			}
-			setGameState(GameState.MakingGuess);
 			update();
+			return true;
 		}
+		return false;
 	}
 
 	/**
@@ -853,8 +552,9 @@ public class Game extends Observable {
 	 * solving OR guessing
 	 * 
 	 * @param w The weapon they chose
+	 * @return If the state change could be applied
 	 */
-	public void weaponSelected(Weapon w) {
+	public boolean weaponSelected(Weapon w) {
 		if (gameState == GameState.MakingGuess || gameState == GameState.MakingSolve) {
 			currentGuess.setWeapon(w);
 			if (gameState == GameState.MakingGuess) {
@@ -863,7 +563,9 @@ public class Game extends Observable {
 				gameStateMakingSolve = GameStateMakingSolve.SelectingPlayer;
 			}
 			update();
+			return true;
 		}
+		return false;
 	}
 
 	/**
@@ -871,8 +573,9 @@ public class Game extends Observable {
 	 * when solving OR guessing
 	 * 
 	 * @param c The character they chose
+	 * @return If the state change could be applied
 	 */
-	public void playerSelected(Character c) {
+	public boolean playerSelected(Character c) {
 		if (gameState == GameState.MakingGuess || gameState == GameState.MakingSolve) {
 			currentGuess.setCharacter(c);
 			if (gameState == GameState.MakingGuess) {
@@ -886,19 +589,25 @@ public class Game extends Observable {
 				}
 			}
 			update();
+			return true;
 		}
+		return false;
 	}
 
 	/**
 	 * For that state machine. Called when the player as selected "ok" if the "you
 	 * are out" view
+	 * 
+	 * @return If the state change could be applied
 	 */
-	public void acceptedOut() {
+	public boolean acceptedOut() {
 		if (gameState == GameState.PlayerOut) {
 			takingTurn().setOut();
 			setGameState(GameState.RollDice);
 			update();
+			return true;
 		}
+		return false;
 	}
 
 	/**
@@ -906,9 +615,15 @@ public class Game extends Observable {
 	 * player to this
 	 * 
 	 * @param cardTheyRefuted
+	 * @return If the state change could be applied
 	 */
-	public void refuting(Card cardTheyRefuted) {
+	public boolean refuting(Card cardTheyRefuted) {
 		if (gameState == GameState.MakingGuess) {
+			// Check if the card is in their hand
+			if(!characters.get(currentRefuter).getHand().contains(cardTheyRefuted)){
+				return false;
+			}
+			
 			refuteCards.put(characters.get(currentRefuter), cardTheyRefuted);
 			// Move to next refuter
 			currentRefuter = (currentRefuter + 1) % playerNum;
@@ -917,18 +632,24 @@ public class Game extends Observable {
 				setGameState(GameState.ShowRefute);
 			}
 			update();
+			return true;
 		}
+		return false;
 	}
 
 	/**
 	 * For that state machine Called when the player as selected "ok" if the "you
 	 * were show the cards" view
+	 * 
+	 * @return If the state change could be applied
 	 */
-	public void acceptedRefute() {
+	public boolean acceptedRefute() {
 		if (gameState == GameState.ShowRefute) {
 			setGameState(GameState.RollDice);
 			update();
+			return true;
 		}
+		return false;
 	}
 
 	/**
@@ -936,6 +657,34 @@ public class Game extends Observable {
 	 */
 	public Character takingTurn() {
 		return characters.get(playerTurn);
+	}
+
+	/**
+	 * @return The current diceRoll
+	 */
+	public int diceRoll() {
+		return diceOne + diceTwo;
+	}
+	
+	/**
+	 * @return The value roll on dice one
+	 */
+	public int getDiceOne() {
+		return diceOne;
+	}
+	
+	/**
+	 * @return The value roll on dice two
+	 */
+	public int getDiceTwo() {
+		return diceTwo;
+	}
+	
+	/**
+	 * @return All characters in the game
+	 */
+	public List<Character> getCharacters(){
+		return Collections.unmodifiableList(characters);
 	}
 
 	/**

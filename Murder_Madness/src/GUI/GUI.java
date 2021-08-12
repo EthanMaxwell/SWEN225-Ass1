@@ -22,7 +22,6 @@ public class GUI implements Observer {
 	 */
 	private Game view;
 
-
 	private JFrame frame;
 
 	private BoardPanel boardPanel;
@@ -33,7 +32,6 @@ public class GUI implements Observer {
 
 	private Dimension ScreenDimension;
 
-
 	public GUI() {
 		initialise();
 	}
@@ -41,41 +39,51 @@ public class GUI implements Observer {
 	/**
 	 * Create default JFrame for the game
 	 */
-	private void initialise(){
+	private void initialise() {
 
-		//Initialise ScreenDimension to the the size of the current window
+		// Initialise ScreenDimension to the the size of the current window
 		ScreenDimension = screenDimension();
 
-		//Create the main frame for the game
+		// Create the main frame for the game
 		frame = new JFrame();
 		frame.setTitle("Murder Madness - Team 22 (Runtime Terror)");
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		frame.setResizable(true);
 
-		//Create the panel for the board
-		boardPanel = new BoardPanel();
+		// Create the panel for the board
+		boardPanel = new BoardPanel() {
+			public void paintComponent(Graphics g) {
+				super.paintComponent(g);
+				drawGame(g);
+			}
+		};
 
-		//Create the panel for the controller
-		controlPanel = new ControlPanel();
+		// Create the panel for the controller
+		controlPanel = new ControlPanel() {
+			public void paintComponent(Graphics g) {
+				super.paintComponent(g);
+				drawControl(g);
+			}
+		};
 
-		//Create MenuBar
+		// Create MenuBar
 		menuBar = new MenuBar();
 
-		//Add MenuBar
+		// Add MenuBar
 		frame.setJMenuBar(menuBar);
 
-		//Set GridBagLayout
+		// Set GridBagLayout
 		frame.setLayout(new GridBagLayout());
 		GridBagConstraints gbc = new GridBagConstraints();
 		gbc.fill = GridBagConstraints.BOTH;
 		gbc.weighty = 1;
 
-		//Make the width of boardPanel 70% the size of the screen
+		// Make the width of boardPanel 70% the size of the screen
 		gbc.weightx = 0.7;
 		boardPanel.setOpaque(true);
 		frame.add(boardPanel, gbc);
 
-		//Make the width of controlPanel 30% the size of the screen
+		// Make the width of controlPanel 30% the size of the screen
 		gbc.weightx = 0.3;
 		controlPanel.setOpaque(true);
 		frame.add(controlPanel, gbc);
@@ -84,20 +92,18 @@ public class GUI implements Observer {
 		frame.setSize(Toolkit.getDefaultToolkit().getScreenSize()); // Set frame dimension
 		frame.setLocationByPlatform(true);
 		frame.setVisible(true);
-
-		getNumPlayers(); //ONLY FOR TESTING. NOT FUNCTIONAL
 	}
 
 	public int getNumPlayers() {
 		String title = "Welcome to Murder Madness!";
 		String question = "How many players do you have?";
-		Object[] fixed_options = {"3", "4"};
+		Object[] fixed_options = { "3", "4" };
 
 //		String input = (String) JOptionPane.showInputDialog(null, question, title,
 //				JOptionPane.INFORMATION_MESSAGE, null, fixed_option, fixed_option[0]);
 
-		int input = JOptionPane.showOptionDialog(frame, question, title,
-					JOptionPane.YES_NO_CANCEL_OPTION, JOptionPane.QUESTION_MESSAGE, null, fixed_options, fixed_options[0]);
+		int input = JOptionPane.showOptionDialog(frame, question, title, JOptionPane.YES_NO_CANCEL_OPTION,
+				JOptionPane.QUESTION_MESSAGE, null, fixed_options, fixed_options[0]);
 
 //		// when user close dialog
 //		if (input == null)
@@ -106,8 +112,8 @@ public class GUI implements Observer {
 		return input;
 	}
 
-	/*
-	 * return the dimension of the screen
+	/**
+	 * @return the dimension of the screen
 	 */
 	public Dimension screenDimension() {
 		return new Dimension(Toolkit.getDefaultToolkit().getScreenSize().width,
@@ -153,23 +159,30 @@ public class GUI implements Observer {
 	 * @param g The graphic to use when drawing the game
 	 */
 	private void drawGame(Graphics g) {
-		g.drawOval(100, 100, 100, 100);
-		Game game = view;
-		if (game != null) {
-			if (game.getGameState() == GameState.SelectPlayerNumber) {
-				Object[] options = { "3", "4" };
-				int n = JOptionPane.showOptionDialog(frame,
-						"How many player (this dialog box is not permanent, it's an example)", "Select a number",
-						JOptionPane.YES_NO_CANCEL_OPTION, JOptionPane.QUESTION_MESSAGE, null, options, options[0]);
-				game.setupBoard(n + 3);
-			}
-			else {
-				drawBaord(g, game);
+		if (view != null) {
+			g.drawOval(100, 100, 100, 100);
+			drawBaord(g, view);
+		}
+	}
+
+	private void drawControl(Graphics g) {
+		if (view != null) {
+			if (view.getGameState().equals(Game.GameState.SelectPlayerNumber)) {
+				/*JRadioButton r1 = new JRadioButton("A) Male");
+				JRadioButton r2 = new JRadioButton("B) Female");
+				r1.setBounds(75, 50, 100, 30);
+				r2.setBounds(75, 100, 100, 30);
+				ButtonGroup bg = new ButtonGroup();
+				bg.add(r1);
+				bg.add(r2);
+				controlPanel.add(r1);
+				controlPanel.add(r2);
+				controlPanel.setVisible(true);*/
 			}
 		}
 	}
 
-	private void drawBaord(Graphics g, Game game){
+	private void drawBaord(Graphics g, Game game) {
 		// TODO : draw out the game board
 	}
 

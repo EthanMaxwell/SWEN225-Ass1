@@ -82,21 +82,6 @@ public class Square implements Location{
 	}
 
 	/**
-	 * @return The text representation of this cell for displaying the board
-	 */
-	@Deprecated
-	public String getCharacter() {
-		if (hasPartOf()) {
-			if (accessible)
-				return "   "; // Room entry
-			return " " + partOf.getName().charAt(0) + " "; //Room body
-		}
-		if (!accessible)
-			return "WW|"; // Inaccessible square outside a room
-		return "__|"; // Standard square
-	}
-
-	/**
 	 * @return The text position of this square
 	 */
 	public String getPosition() {

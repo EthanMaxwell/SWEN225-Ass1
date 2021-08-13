@@ -141,21 +141,15 @@ public class GUI implements Observer {
 	private void drawControl(Graphics g) {
 		if (view != null && roll != null) {
 			// Hide all object by default
-			roll.setVisible(false);
-			guess.setVisible(false);
-			solve.setVisible(false);
-			moveInfo.setVisible(false);
+
 
 			switch (view.getGameState()) {
 			// Show roll dice button if applicable
 			case RollDice:
-				roll.setVisible(true);
 				break;
 
 			// Show guess/solve buttons if applicable
 			case AskGuessOrSolve:
-				guess.setVisible(true);
-				solve.setVisible(true);
 				break;
 
 			// Show player move instructions
@@ -482,12 +476,19 @@ public class GUI implements Observer {
 				nameTitle.setVisible(false);
 				nameBox.setVisible(false);
 				charTitle.setVisible(false);
+				roll.setVisible(true);
+				guess.setVisible(true);
+				solve.setVisible(true);
+				moveInfo.setVisible(true);
+				frame.setVisible(true);
+
 			}
 		});
 
 		// Add a player move instruction
 		moveInfo = new JLabel("Clicked where to move");
 		moveInfo.setFont(FONT);
+		moveInfo.setVisible(false);
 		controlPanel.add(moveInfo);
 
 		// Dice roll button

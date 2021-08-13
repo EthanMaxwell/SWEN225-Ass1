@@ -81,7 +81,7 @@ public class Game extends Observable {
 	 */
 	private void update() {
 		setChanged();
-		notifyObservers();
+		notifyObservers(this);
 	}
 
 	/**
@@ -700,5 +700,12 @@ public class Game extends Observable {
 	 */
 	public GameStateMakingSolve getGameStateMakingSolve() {
 		return gameStateMakingSolve;
+	}
+
+	/**
+	 * @return The board of the game
+	 */
+	public Board getBoard() {
+		return board;
 	}
 }

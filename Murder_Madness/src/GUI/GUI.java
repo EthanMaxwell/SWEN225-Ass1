@@ -13,6 +13,8 @@ import java.util.*;
 
 import GameCode.Game;
 import GameCode.Game.GameState;
+import GameCode.Room;
+import GameCode.Square;
 
 /**
  * TODO Write me
@@ -98,7 +100,6 @@ public class GUI implements Observer {
 		frame.pack();
 		frame.setSize(Toolkit.getDefaultToolkit().getScreenSize()); // Set frame dimension
 		frame.setLocationByPlatform(true);
-
 	}
 
 	public int getNumPlayers() {
@@ -182,6 +183,58 @@ public class GUI implements Observer {
 
 	private void drawBoard(Graphics g, Game game) {
 		// TODO : draw out the game board
+		int boardWidth = boardPanel.getWidth();
+		int boardHeight = boardPanel.getHeight();
+		int squareSize;
+
+		if (boardWidth < boardHeight)
+			squareSize = boardWidth / 24;
+		else
+			squareSize = boardHeight / 24;
+
+		for (int row = 0; row < 24; row++){
+			for (int col = 0; col < 24; col++){
+
+				int x = col * squareSize;
+				int y = row * squareSize;
+
+				Square square = view.getBoard().getGameSquare(col,row);
+				g.setColor(Color.yellow);
+				if (square.getPartOf() instanceof Room){
+					//Haunted House
+					if (square.getPartOf().toString().equals("Haunted House")){
+						g.setColor(Color.blue);
+					}
+					//Manic Manor
+					else if (square.getPartOf().toString().equals("Manic Manor")){
+						g.setColor(Color.magenta);
+					}
+					//Villa Celia
+					else if (square.getPartOf().toString().equals("Villa Celia")){
+						g.setColor(Color.green);
+					}
+					//Calamity Castle
+					else if (square.getPartOf().toString().equals("Calamity Castle")){
+						g.setColor(Color.pink);
+					}
+					//Peril Palace
+					else if (square.getPartOf().toString().equals("Peril Palace")){
+						g.setColor(Color.red);
+					}
+
+				}
+				else if (!square.isAccessible()){
+					g.setColor(Color.black);
+				}
+
+
+
+				g.fillRect(x,y,squareSize,squareSize);
+				g.setColor(Color.gray);
+				g.drawRect(x,y,squareSize,squareSize);
+			}
+		}
+
 	}
 
 	private void drawGame() {

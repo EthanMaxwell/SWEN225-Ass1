@@ -13,9 +13,6 @@ public class Square implements Location{
 	// Square Attributes
 	private boolean accessible = true;
 
-	// Square Attributes
-	private boolean door = false;
-
 	// Square Associations
 	private Room partOf = null;
 
@@ -84,20 +81,6 @@ public class Square implements Location{
 		return wasSet;
 	}
 
-	/**
-	 * Set a square to be a door
-	 * @param accessible
-	 */
-	public void setDoor(boolean accessible){
-		door = accessible;
-	}
-
-	/**
-	 * @return If the square is a door
-	 */
-	public boolean isDoor(){
-		return door;
-	}
 
 	/**
 	 * @return The text position of this square

@@ -26,6 +26,8 @@ public class GameTests {
 
 		// Player through 100 player turns
 		for (int i = 0; i < 100; i++) {
+			assertEquals(Game.GameState.AskForNext, game.getGameState());
+			assertTrue(game.nextPlayerReady());
 			// First player must roll dice
 			assertEquals(Game.GameState.RollDice, game.getGameState());
 			assertTrue(game.rollDice());
@@ -58,13 +60,14 @@ public class GameTests {
 
 		// Take 100 turns
 		for (int i = 0; i < 100; i++) {
+			assertTrue(game.nextPlayerReady());
 			assertTrue(game.rollDice());
 			for (Location l : game.canMoveTo()) {
 				if (l instanceof Square) {
 					// Check the player is in the correct spot
-					assertEquals(game.takingTurn().getLocation(), positions.get(game.takingTurn()));
+					assertEquals(game.getTakingTurn().getLocation(), positions.get(game.getTakingTurn()));
 					// Update their location
-					positions.put(game.takingTurn(), l);
+					positions.put(game.getTakingTurn(), l);
 					assertTrue(game.MovePlayer(l));
 					break;
 				}
@@ -82,6 +85,7 @@ public class GameTests {
 
 		// Try to move a player into a room 1000 times.
 		for (int i = 0; i < 1000; i++) {
+			assertTrue(game.nextPlayerReady());
 			assertTrue(game.rollDice());
 
 			// Try to move the player to a room
@@ -91,10 +95,10 @@ public class GameTests {
 					break;
 				}
 			}
-			
+
 			// If the player was moved into a room check it worked correctly
 			if (game.getGameState().equals(Game.GameState.AskGuessOrSolve)) {
-				GameCode.Character inRoom = game.takingTurn();
+				GameCode.Character inRoom = game.getTakingTurn();
 				// Check the player in now in the room
 				assertTrue(inRoom.isInRoom());
 				assertTrue(inRoom.getLocation().hasPartOf());
@@ -114,6 +118,47 @@ public class GameTests {
 		}
 
 		fail("No player entered a room");
+	}
+
+	@Test
+	public void test_04() {
+		Game game = new Game(new noDisplay());
+		assertTrue(game.dealHands(Set.copyOf(game.getCharacters())));
+
+		// Try to move a player into a room 1000 times.
+		for (int i = 0; i < 1000; i++) {
+			assertTrue(game.nextPlayerReady());
+			assertTrue(game.rollDice());
+
+			// Try to move the player to a room
+			for (Location l : game.canMoveTo()) {
+				if (l instanceof Room) {
+					assertTrue(game.MovePlayer(l));
+					break;
+				}
+			}
+
+			// If the player was moved into a room check it worked correctly
+			if (game.getGameState().equals(Game.GameState.AskGuessOrSolve)) {
+				GameCode.Character inRoom = game.getTakingTurn();
+				// Check the player in now in the room
+				assertTrue(inRoom.isInRoom());
+				assertTrue(inRoom.getLocation().hasPartOf());
+				assertEquals(inRoom.getLocation().getPartOf(), inRoom.getInRoom());
+				assertTrue(game.askGuessOrSolve(false));
+				assertTrue(game.weaponSelected(game.getSolution().getWeapon()));
+				// Test complete
+				return;
+			}
+
+			// If player was unable to move to a room, pick a random square
+			for (Location l : game.canMoveTo()) {
+				if (l instanceof Square) {
+					assertTrue(game.MovePlayer(l));
+					break;
+				}
+			}
+		}
 	}
 }
 

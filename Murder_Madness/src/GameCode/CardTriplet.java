@@ -190,10 +190,10 @@ public class CardTriplet {
 	}
 
 	/**
-	 * Print out this card triplet
+	 * @return A sentence summarising the cardTriplet
 	 */
-	public void print() {
-		System.out.println(character.getName() + " in the " + room.getName() + " with the " + weapon.getName());
+	public String writeOut() {
+		return character.getName() + " in the " + room.getName() + " with the " + weapon.getName();
 	}
 
 }

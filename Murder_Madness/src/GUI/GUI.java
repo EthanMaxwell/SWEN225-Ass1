@@ -37,6 +37,13 @@ public class GUI implements Observer {
 
 	private final Font FONT = new Font("SansSerif", Font.BOLD, 20);
 
+	// Buttons
+	JButton roll;
+	JButton guess;
+	JButton solve;
+
+	JLabel moveInfo;
+
 	private Map<GameCode.Character, String> names = new HashMap<>();
 
 	public GUI() {
@@ -86,12 +93,12 @@ public class GUI implements Observer {
 		gbc.weighty = 1;
 
 		// Make the width of boardPanel 70% the size of the screen
-		gbc.weightx = 1;
+		gbc.weightx = 0.8;
 		boardPanel.setOpaque(true);
 		frame.add(boardPanel, gbc);
 
 		// Make the width of controlPanel 30% the size of the screen
-		gbc.weightx = 0.0;
+		gbc.weightx = 0;
 		controlPanel.setOpaque(true);
 		frame.add(controlPanel, gbc);
 
@@ -127,39 +134,6 @@ public class GUI implements Observer {
 				Toolkit.getDefaultToolkit().getScreenSize().height);
 	}
 
-//
-//		JButton rollDice = new JButton("Roll Dice");
-//		rollDice.addActionListener(new ActionListener() {
-//			public void actionPerformed(ActionEvent ev) {
-//				view.rollDice();
-//			}
-//		});
-//
-//		JButton butt2 = new JButton("Option select");
-//		butt2.addActionListener(new ActionListener() {
-//			public void actionPerformed(ActionEvent ev) {
-//				Object[] options = { "1", "2", "3", "4" };
-//				int n = JOptionPane.showOptionDialog(frame, "You can select numbers lol", "A selection prompt",
-//						JOptionPane.YES_NO_CANCEL_OPTION, JOptionPane.QUESTION_MESSAGE, null, options, options[2]);
-//			}
-//		});
-//
-//		buttonBar.add(rollDice);
-//		buttonBar.add(butt2);
-//
-//		// Make drawing area
-//		JPanel drawingArea = new JPanel() {
-//			public void paintComponent(Graphics g) {
-//				drawGame(g);
-//			}
-//		};
-//
-//		frame.getContentPane().add(BorderLayout.NORTH, buttonBar);
-//		frame.getContentPane().add(BorderLayout.CENTER, drawingArea);
-//
-//		frame.setVisible(true);
-//	}
-
 	/**
 	 * Draw out the game
 	 * 
@@ -172,11 +146,214 @@ public class GUI implements Observer {
 		}
 	}
 
+	/**
+	 * Draw all controller related objects
+	 * 
+	 * @param g Graphics object to use when needed
+	 */
 	private void drawControl(Graphics g) {
-		if (view != null) {
-			if (view.getGameState().equals(Game.GameState.SelectPlayerNumber)) {
+		if (view != null && roll != null) {
+			// Hide all object by default
+			roll.setVisible(false);
+			guess.setVisible(false);
+			solve.setVisible(false);
+			moveInfo.setVisible(false);
 
+			switch (view.getGameState()) {
+			// Show roll dice button if applicable
+			case RollDice:
+				roll.setVisible(true);
+				break;
+
+			// Show guess/solve buttons if applicable
+			case AskGuessOrSolve:
+				guess.setVisible(true);
+				solve.setVisible(true);
+				break;
+
+			// Show player move instructions
+			case MovePlayer:
+				moveInfo.setVisible(true);
+				break;
+
+			// Show dialogue for player attempting to guess
+			case MakingGuess:
+				showGuessDialog();
+				break;
+
+			// Show dialogue for player attempting to solve
+			case MakingSolve:
+				showSolveDialog();
+				break;
+
+			// Ask for device to be handed on so next player can take their turn
+			case AskForNext:
+				JOptionPane.showMessageDialog(frame, "It is now " + view.getTakingTurn().getName() + " ("
+						+ names.get(view.getTakingTurn()) + ") turn. Please hand the device to them then press ok.");
+				view.nextPlayerReady();
+				break;
+
+			// Ask if the player would like to stay or move
+			case AskToStay:
+				askToStay();
+				break;
+
+			// Print out gameOver screen
+			case GameOver:
+				// Everybody is out and the game ends
+				if (!view.hasWinner()) {
+					JOptionPane.showMessageDialog(frame,
+							"The game is over as everybody loses (seriously how did you all lose?)");
+				}
+				// A winner is to be crowned
+				else {
+					JOptionPane.showMessageDialog(frame,
+							view.getTakingTurn().getName() + " (" + names.get(view.getTakingTurn())
+									+ ") Wins! The solution was:/n" + view.getSolution().writeOut());
+				}
+				break;
+
+			// Print player out message
+			case PlayerOut:
+				JOptionPane.showMessageDialog(frame, "Sadly our guess of " + view.getLastGuess()
+						+ " wasn't correct. You are now out and will miss the rest of your turns.");
+				view.acceptedOut();
+				break;
+
+			// Show the player
+			case ShowRefute:
+				JOptionPane.showMessageDialog(frame, " You got shown the cards:\n" + view.getShownCard());
+				view.acceptedRefute();
+				break;
+
+			// If unsure do nothing
+			default:
+				break;
 			}
+		}
+	}
+
+	/**
+	 * Ask current player if they want to say in their current room
+	 */
+	private void askToStay() {
+		int n = JOptionPane.showOptionDialog(controlPanel, "Stay or more?",
+				"Would you like to stay the " + view.getTakingTurn().getInRoom().getName() + " or move ?",
+				JOptionPane.YES_NO_CANCEL_OPTION, JOptionPane.QUESTION_MESSAGE, null, view.getCharacters().toArray(),
+				null);
+
+		// Check the output was a valid one
+		if (n == 0)
+			view.askToStay(true);
+		if (n == 1)
+			view.askToStay(false);
+		else
+			// Failed, retry selection
+			askToStay();
+	}
+
+	/**
+	 * Show dialogue for the player making a guess
+	 */
+	private void showGuessDialog() {
+		// Get the player to choose a weapon
+		if (view.getGameStateMakingGuess() == Game.GameStateMakingGuess.SelectingWeapon) {
+			// Show the option
+			int n = JOptionPane.showOptionDialog(controlPanel, "You are making a guess", "Select a weapon to guess",
+					JOptionPane.YES_NO_CANCEL_OPTION, JOptionPane.QUESTION_MESSAGE, null, view.getWeapons().toArray(),
+					null);
+
+			// Check the output was a valid one
+			if (n >= 0)
+				// Selected
+				view.weaponSelected(view.getWeapons().get(n));
+			else
+				// Failed, retry selection
+				showGuessDialog();
+		}
+		// Get player to choose a character
+		else if (view.getGameStateMakingGuess() == Game.GameStateMakingGuess.SelectingPlayer) {
+			int n = JOptionPane.showOptionDialog(controlPanel, "You are making a guess", "Select a character to guess",
+					JOptionPane.YES_NO_CANCEL_OPTION, JOptionPane.QUESTION_MESSAGE, null,
+					view.getCharacters().toArray(), null);
+
+			// Check the output was a valid one
+			if (n >= 0)
+				// Selected
+				view.characterSelected(view.getCharacters().get(n));
+			else
+				// Failed, retry selection
+				showGuessDialog();
+		}
+		// Ask for the next refuter
+		else if (view.getGameStateMakingGuess() == Game.GameStateMakingGuess.NextPlayer) {
+			JOptionPane.showMessageDialog(frame, "Please hand a the device to " + view.getRefuting().getName() + " ("
+					+ names.get(view.getRefuting()) + ") then press okay");
+			view.refutingPlayerReady();
+		}
+		// Ask for card to refute with
+		else if (view.getGameStateMakingGuess() == Game.GameStateMakingGuess.Refuting) {
+			if (view.canRefute().size() == 0) {
+				JOptionPane.showMessageDialog(frame,
+						"You must refute : " + view.getLastGuess() + "/nYou have no cards to show.");
+				view.refuting(null);
+			}
+			if (view.canRefute().size() == 1) {
+				JOptionPane.showMessageDialog(frame, "You must refute : " + view.getLastGuess()
+						+ "/nYou must show your " + view.canRefute().get(0).getName() + " card.");
+				view.refuting(view.canRefute().get(0));
+			}
+			// They have multiple card to choose from so must select one
+			else {
+				// Make the refuter select a card
+				int n = JOptionPane.showOptionDialog(controlPanel, "Refute a card",
+						"Select a card to show to " + view.getTakingTurn().getName() + " ("
+								+ names.get(view.getTakingTurn()) + ")",
+						JOptionPane.YES_NO_CANCEL_OPTION, JOptionPane.QUESTION_MESSAGE, null,
+						view.canRefute().toArray(), null);
+
+				// Check the output was a valid one
+				if (n >= 0)
+					// Selected
+					view.refuting(view.canRefute().get(n));
+				else
+					// Failed, retry selection
+					showGuessDialog();
+			}
+		}
+	}
+
+	/**
+	 * Show dialogue for the player making a solve attempt
+	 */
+	private void showSolveDialog() {
+		// Get player to select a weapon
+		if (view.getGameStateMakingSolve() == Game.GameStateMakingSolve.SelectingWeapon) {
+			int n = JOptionPane.showOptionDialog(controlPanel, "You are attempting to solve the murder",
+					"Select the murder weapon", JOptionPane.YES_NO_CANCEL_OPTION, JOptionPane.QUESTION_MESSAGE, null,
+					view.getWeapons().toArray(), null);
+
+			// Check the output was a valid one
+			if (n >= 0)
+				// Selected
+				view.weaponSelected(view.getWeapons().get(n));
+			else
+				// Failed, retry selection
+				showSolveDialog();
+		}
+		// Get player to chose a character
+		else if (view.getGameStateMakingSolve() == Game.GameStateMakingSolve.SelectingPlayer) {
+			int n = JOptionPane.showOptionDialog(controlPanel, "You are attempting to solve the murder",
+					"Select the murderer", JOptionPane.YES_NO_CANCEL_OPTION, JOptionPane.QUESTION_MESSAGE, null,
+					view.getCharacters().toArray(), null);
+
+			// Check the output was a valid one
+			if (n >= 0)
+				// Selected
+				view.characterSelected(view.getCharacters().get(n));
+			else
+				// Failed, retry selection
+				showSolveDialog();
 		}
 	}
 
@@ -200,7 +377,7 @@ public class GUI implements Observer {
 		controlPanel.add(nameTitle);
 
 		// Box for player to enter their name
-		JTextField nameBox = new JTextField("Name");
+		JTextField nameBox = new JTextField("Players name");
 		nameBox.setFont(FONT);
 		nameBox.setMaximumSize(new Dimension(300, 30));
 		controlPanel.add(nameBox);
@@ -245,7 +422,7 @@ public class GUI implements Observer {
 						options.get(i).setSelected(false);
 						options.get(i).setEnabled(false);
 						// Reset the name box
-						nameBox.setText("Name");
+						nameBox.setText("Players name");
 						// Update the player number in title
 						title.setText("Player " + (names.size() + 1) + ":");
 						// Check if the start button should become visable
@@ -263,14 +440,66 @@ public class GUI implements Observer {
 			public void actionPerformed(ActionEvent ev) {
 				// Deal cards to players
 				view.dealHands(names.keySet());
-				// Remove no longer needed objects
-				controlPanel.removeAll();
+				// Start gameController
+				startController();
 			}
 		});
 
 		frame.setVisible(true);
 		setup = true;
+	}
 
+	private void startController() {
+		// Remove no longer needed objects
+		controlPanel.removeAll();
+
+		// Add a player turn title
+		JLabel title = new JLabel(view.getTakingTurn().getName() + "'s (" + names.get(view.getTakingTurn()) + ") turn");
+		title.setFont(FONT);
+		controlPanel.add(title);
+
+		// Add a player move instruction
+		moveInfo = new JLabel("Clicked where to move");
+		moveInfo.setFont(FONT);
+		controlPanel.add(moveInfo);
+
+		// Dice roll button
+		roll = new JButton("Roll dice");
+		roll.setFont(FONT);
+		controlPanel.add(roll);
+
+		roll.addActionListener(new ActionListener() {
+			// Roll dice when pressed
+			public void actionPerformed(ActionEvent ev) {
+				view.rollDice();
+			}
+		});
+
+		// Guess button
+		guess = new JButton("Make a guess");
+		guess.setFont(FONT);
+		controlPanel.add(guess);
+
+		guess.addActionListener(new ActionListener() {
+			// Start guess when pressed
+			public void actionPerformed(ActionEvent ev) {
+				view.askGuessOrSolve(true);
+			}
+		});
+
+		// Solve button
+		solve = new JButton("Try to solve");
+		solve.setFont(FONT);
+		controlPanel.add(solve);
+
+		solve.addActionListener(new ActionListener() {
+			// Start solve when pressed
+			public void actionPerformed(ActionEvent ev) {
+				view.askGuessOrSolve(false);
+			}
+		});
+
+		frame.setVisible(true);
 	}
 
 	@Override

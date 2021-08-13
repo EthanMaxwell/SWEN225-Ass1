@@ -27,22 +27,23 @@ public class Game extends Observable {
 	private List<Room> rooms;
 	private List<Weapon> weapons;
 	private CardTriplet solution = new CardTriplet();
-	private CardTriplet currentGuess;
+	private CardTriplet currentGuess = new CardTriplet();
 	private int playerNum; // Number of people playing the game
 	private int playerTurn; // Number of the player currently taking their turn
 	private int currentRefuter; // Number of the current player refuting
 	private Map<Character, Card> refuteCards = new HashMap<>();
 	private int diceOne;
 	private int diceTwo;
+	private Character winner = null;
 
 	// Game State Machines
 	public enum GameState {
 		SelectPlayerNumber, RollDice, AskToStay, MovePlayer, AskGuessOrSolve, MakingGuess, MakingSolve, PlayerOut,
-		GameOver, ShowRefute
+		GameOver, ShowRefute, AskForNext
 	}
 
 	public enum GameStateMakingGuess {
-		Null, SelectingWeapon, SelectingPlayer, Refuting
+		Null, SelectingWeapon, SelectingPlayer, Refuting, NextPlayer
 	}
 
 	public enum GameStateMakingSolve {
@@ -72,7 +73,7 @@ public class Game extends Observable {
 		createCharacters();
 
 		createWeapons();
-		
+
 		update();
 	}
 
@@ -90,15 +91,15 @@ public class Game extends Observable {
 	 * @param players The character that have players to setup the game for
 	 * @return If the state change could be applied
 	 */
-	public boolean dealHands(Set <Character> players) {
+	public boolean dealHands(Set<Character> players) {
 		if (gameState == GameState.SelectPlayerNumber || players.size() < 3 || players.size() > 4) {
-			//The NPC should be at the end of the character list
+			// The NPC should be at the end of the character list
 			// Check if there is a NPC
-			if(players.size() == 3) {
+			if (players.size() == 3) {
 				// Find who will be the NPC
-				for(int i = 0; i < characters.size(); i++) {
+				for (int i = 0; i < characters.size(); i++) {
 					Character c = characters.get(i);
-					if(!players.contains(c)) {
+					if (!players.contains(c)) {
 						// Move NPC to the end of the character list
 						characters.remove(c);
 						characters.add(c);
@@ -110,7 +111,7 @@ public class Game extends Observable {
 			createCards();
 
 			playerTurn = (int) (Math.random() * playerNum);
-			setGameState(GameState.RollDice);
+			setGameState(GameState.AskForNext);
 			update();
 			return true;
 		}
@@ -314,7 +315,7 @@ public class Game extends Observable {
 
 		// Setup fringe
 		Queue<List<Square>> fringe = new LinkedList<>();
-		fringe.add(Arrays.asList(takingTurn().getLocation())); // Starting location
+		fringe.add(Arrays.asList(getTakingTurn().getLocation())); // Starting location
 
 		while (!fringe.isEmpty()) {
 			List<Square> curPath = fringe.poll();
@@ -345,7 +346,7 @@ public class Game extends Observable {
 			}
 		}
 
-		dests.remove(takingTurn().getInRoom());
+		dests.remove(getTakingTurn().getInRoom());
 
 		return dests;
 	}
@@ -418,20 +419,6 @@ public class Game extends Observable {
 	}
 
 	/**
-	 * Make a list of strings of numbers from 1 to the given number
-	 * 
-	 * @param end The number to cut up to (included)
-	 * @return The list of string for the numbers
-	 */
-	private List<String> makeSequence(int end) {
-		List<String> ret = new ArrayList<>(end);
-		for (int i = 1; i <= end; i++) {
-			ret.add(i + "");
-		}
-		return ret;
-	}
-
-	/**
 	 * Set the game state to the given state. Never directly change the game state
 	 * instead call this as it runs all ENTERY code of all states!
 	 * 
@@ -442,7 +429,7 @@ public class Game extends Observable {
 
 		// entry actions and do activities
 		switch (gameState) {
-		case RollDice:
+		case AskForNext:
 			playerTurn++;
 			playerTurn = playerTurn % playerNum;
 			break;
@@ -454,6 +441,8 @@ public class Game extends Observable {
 			break;
 		case MakingSolve:
 			gameStateMakingSolve = GameStateMakingSolve.SelectingWeapon;
+			break;
+		default:
 			break;
 		}
 	}
@@ -481,7 +470,7 @@ public class Game extends Observable {
 		if (gameState == GameState.RollDice) {
 			diceOne = (int) (Math.random() * 6) + 1;
 			diceTwo = (int) (Math.random() * 6) + 1;
-			if (takingTurn().isInRoom()) {
+			if (getTakingTurn().isInRoom()) {
 				setGameState(GameState.AskToStay);
 			} else {
 				setGameState(GameState.MovePlayer);
@@ -542,11 +531,11 @@ public class Game extends Observable {
 	public boolean MovePlayer(Location newLoc) {
 		if (gameState == GameState.MovePlayer) {
 			if (newLoc instanceof Square) {
-				takingTurn().setLocation((Square) newLoc);
-				setGameState(GameState.RollDice);
+				getTakingTurn().setLocation((Square) newLoc);
+				setGameState(GameState.AskForNext);
 			}
 			if (newLoc instanceof Room) {
-				moveToRoom(takingTurn(), (Room) newLoc);
+				moveToRoom(getTakingTurn(), (Room) newLoc);
 				setGameState(GameState.AskGuessOrSolve);
 			}
 			update();
@@ -583,14 +572,15 @@ public class Game extends Observable {
 	 * @param c The character they chose
 	 * @return If the state change could be applied
 	 */
-	public boolean playerSelected(Character c) {
+	public boolean characterSelected(Character c) {
 		if (gameState == GameState.MakingGuess || gameState == GameState.MakingSolve) {
 			currentGuess.setCharacter(c);
 			if (gameState == GameState.MakingGuess) {
 				gameStateMakingGuess = GameStateMakingGuess.Refuting;
 			} else {
-				currentGuess.setRoom(takingTurn().getInRoom());
+				currentGuess.setRoom(getTakingTurn().getInRoom());
 				if (currentGuess.equals(solution)) {
+					winner = getTakingTurn();
 					setGameState(GameState.GameOver);
 				} else {
 					setGameState(GameState.PlayerOut);
@@ -610,8 +600,11 @@ public class Game extends Observable {
 	 */
 	public boolean acceptedOut() {
 		if (gameState == GameState.PlayerOut) {
-			takingTurn().setOut();
-			setGameState(GameState.RollDice);
+			getTakingTurn().setOut();
+			if (allPlayersOut())
+				setGameState(GameState.GameOver);
+			else
+				setGameState(GameState.AskForNext);
 			update();
 			return true;
 		}
@@ -627,22 +620,53 @@ public class Game extends Observable {
 	 */
 	public boolean refuting(Card cardTheyRefuted) {
 		if (gameState == GameState.MakingGuess) {
+			// Player has no card to refute with
+			if(cardTheyRefuted == null) {
+				refuteCards.put(characters.get(currentRefuter), null);
+				return true;
+			}
+			
 			// Check if the card is in their hand
 			if (!characters.get(currentRefuter).getHand().contains(cardTheyRefuted)) {
 				return false;
 			}
 
 			refuteCards.put(characters.get(currentRefuter), cardTheyRefuted);
-			// Move to next refuter
-			currentRefuter = (currentRefuter + 1) % playerNum;
-			// All refutes done, exit state
-			if (currentRefuter == playerTurn) {
-				setGameState(GameState.ShowRefute);
-			}
+
+			gameStateMakingGuess = GameStateMakingGuess.NextPlayer;
 			update();
 			return true;
 		}
 		return false;
+	}
+
+	/**
+	 * For the state machine. To show the the next player to refute is ready
+	 * 
+	 * @return If the state change could be applied
+	 */
+	public boolean refutingPlayerReady() {
+		if (gameState == GameState.MakingGuess) {
+			// Move to next refuter
+			currentRefuter = (currentRefuter + 1) % playerNum;
+			
+			// All refutes done, exit state
+			if (currentRefuter == playerTurn)
+				setGameState(GameState.ShowRefute);
+			// Otherwise the next player refutes
+			else
+				gameStateMakingGuess = GameStateMakingGuess.Refuting;
+			update();
+			return true;
+		}
+		return false;
+	}
+
+	/**
+	 * @return The list of card the current refuter is able to show
+	 */
+	public List<Card> canRefute() {
+		return currentGuess.contains(getRefuting().getHand());
 	}
 
 	/**
@@ -653,6 +677,20 @@ public class Game extends Observable {
 	 */
 	public boolean acceptedRefute() {
 		if (gameState == GameState.ShowRefute) {
+			setGameState(GameState.AskForNext);
+			update();
+			return true;
+		}
+		return false;
+	}
+
+	/**
+	 * For that state machine. Called after device has been handed to next player
+	 * 
+	 * @return If the state change could be applied
+	 */
+	public boolean nextPlayerReady() {
+		if (gameState == GameState.AskForNext) {
 			setGameState(GameState.RollDice);
 			update();
 			return true;
@@ -663,8 +701,15 @@ public class Game extends Observable {
 	/**
 	 * @return The player currently taking their turn
 	 */
-	public Character takingTurn() {
+	public Character getTakingTurn() {
 		return characters.get(playerTurn);
+	}
+
+	/**
+	 * @return The player currently refuting
+	 */
+	public Character getRefuting() {
+		return characters.get(currentRefuter);
 	}
 
 	/**
@@ -689,10 +734,59 @@ public class Game extends Observable {
 	}
 
 	/**
+	 * @return If the game has a winner
+	 */
+	public boolean hasWinner() {
+		return winner == null;
+	}
+
+	/**
+	 * @return The games winner
+	 */
+	public Character getWinner() {
+		return winner;
+	}
+
+	/**
+	 * @return The print out solution to the game
+	 */
+	public CardTriplet getSolution() {
+		return solution;
+	}
+
+	/**
+	 * @return The print out solution to the most resent guess/solve
+	 */
+	public String getLastGuess() {
+		return currentGuess.writeOut();
+	}
+	
+	/**
+	 * @return Show a string of all refuted cards and there owner
+	 */
+	public String getShownCard() {
+		return (refuteCards.keySet().stream().map(i -> i.getName() + " : " + (refuteCards.get(i) == null ? "nothing" : refuteCards.get(i).getName())).reduce((a, b) -> a + "/n" + b)).get();
+	}
+
+	/**
 	 * @return All characters in the game
 	 */
 	public List<Character> getCharacters() {
 		return Collections.unmodifiableList(characters);
+	}
+
+	/**
+	 * @return All weapons in the game
+	 */
+	public List<Weapon> getWeapons() {
+		return Collections.unmodifiableList(weapons);
+	}
+
+	/**
+	 * @return All rooms in the game
+	 */
+	public List<Room> getRooms() {
+		return Collections.unmodifiableList(rooms);
 	}
 
 	/**

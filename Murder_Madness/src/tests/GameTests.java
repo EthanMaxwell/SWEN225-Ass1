@@ -82,7 +82,7 @@ public class GameTests {
 	public void test_03() {
 		Game game = new Game(new noDisplay());
 		assertTrue(game.dealHands(Set.copyOf(game.getCharacters())));
-		
+
 		// Try to move a player into a room 1000 times.
 		for (int i = 0; i < 1000; i++) {
 			assertTrue(game.nextPlayerReady());
@@ -95,7 +95,7 @@ public class GameTests {
 					break;
 				}
 			}
-			
+
 			// If the player was moved into a room check it worked correctly
 			if (game.getGameState().equals(Game.GameState.AskGuessOrSolve)) {
 				GameCode.Character inRoom = game.getTakingTurn();
@@ -119,12 +119,12 @@ public class GameTests {
 
 		fail("No player entered a room");
 	}
-	
+
 	@Test
 	public void test_04() {
 		Game game = new Game(new noDisplay());
 		assertTrue(game.dealHands(Set.copyOf(game.getCharacters())));
-		
+
 		// Try to move a player into a room 1000 times.
 		for (int i = 0; i < 1000; i++) {
 			assertTrue(game.nextPlayerReady());
@@ -137,7 +137,7 @@ public class GameTests {
 					break;
 				}
 			}
-			
+
 			// If the player was moved into a room check it worked correctly
 			if (game.getGameState().equals(Game.GameState.AskGuessOrSolve)) {
 				GameCode.Character inRoom = game.getTakingTurn();
@@ -146,7 +146,7 @@ public class GameTests {
 				assertTrue(inRoom.getLocation().hasPartOf());
 				assertEquals(inRoom.getLocation().getPartOf(), inRoom.getInRoom());
 				assertTrue(game.askGuessOrSolve(false));
-				assertTrue(game.weaponSelected(game.getSolution().getWeapon()))
+				assertTrue(game.weaponSelected(game.getSolution().getWeapon()));
 				// Test complete
 				return;
 			}
@@ -158,6 +158,7 @@ public class GameTests {
 					break;
 				}
 			}
+		}
 	}
 }
 

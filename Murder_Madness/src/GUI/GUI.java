@@ -1,6 +1,7 @@
 package GUI;
 
 import java.awt.*;
+
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.Observable;
@@ -13,6 +14,8 @@ import java.util.*;
 
 import GameCode.Game;
 import GameCode.Game.GameState;
+import GameCode.Room;
+import GameCode.Square;
 
 /**
  * TODO Write me
@@ -69,6 +72,8 @@ public class GUI implements Observer {
 			public void paintComponent(Graphics g) {
 				super.paintComponent(g);
 				drawGame(g);
+				drawControl(g);
+
 			}
 		};
 
@@ -76,7 +81,7 @@ public class GUI implements Observer {
 		controlPanel = new ControlPanel() {
 			public void paintComponent(Graphics g) {
 				super.paintComponent(g);
-				drawControl(g);
+
 			}
 		};
 
@@ -106,24 +111,6 @@ public class GUI implements Observer {
 		frame.setSize(Toolkit.getDefaultToolkit().getScreenSize()); // Set frame dimension
 		frame.setLocationByPlatform(true);
 
-	}
-
-	public int getNumPlayers() {
-		String title = "Welcome to Murder Madness!";
-		String question = "How many players do you have?";
-		Object[] fixed_options = { "3", "4" };
-
-//		String input = (String) JOptionPane.showInputDialog(null, question, title,
-//				JOptionPane.INFORMATION_MESSAGE, null, fixed_option, fixed_option[0]);
-
-		int input = JOptionPane.showOptionDialog(frame, question, title, JOptionPane.YES_NO_CANCEL_OPTION,
-				JOptionPane.QUESTION_MESSAGE, null, fixed_options, fixed_options[0]);
-
-//		// when user close dialog
-//		if (input == null)
-//			return -1;
-
-		return input;
 	}
 
 	/**
@@ -358,7 +345,54 @@ public class GUI implements Observer {
 	}
 
 	private void drawBoard(Graphics g, Game game) {
-		// TODO : draw out the game board
+		int boardWidth = boardPanel.getWidth();
+		int boardHeight = boardPanel.getHeight();
+		int squareSize;
+
+		if (boardWidth < boardHeight)
+			squareSize = boardWidth / 24;
+		else
+			squareSize = boardHeight / 24;
+
+		for (int row = 0; row < 24; row++) {
+			for (int col = 0; col < 24; col++) {
+
+				int x = col * squareSize;
+				int y = row * squareSize;
+
+				Square square = view.getBoard().getGameSquare(col, row);
+				g.setColor(Color.white);
+				if (square.getPartOf() instanceof Room) {
+					// Haunted House
+					if (square.getPartOf().toString().equals("Haunted House")) {
+						g.setColor(Color.blue);
+					}
+					// Manic Manor
+					else if (square.getPartOf().toString().equals("Manic Manor")) {
+						g.setColor(Color.magenta);
+					}
+					// Villa Celia
+					else if (square.getPartOf().toString().equals("Villa Celia")) {
+						g.setColor(Color.green);
+					}
+					// Calamity Castle
+					else if (square.getPartOf().toString().equals("Calamity Castle")) {
+						g.setColor(Color.pink);
+					}
+					// Peril Palace
+					else if (square.getPartOf().toString().equals("Peril Palace")) {
+						g.setColor(Color.red);
+					}
+
+				} else if (!square.isAccessible()) {
+					g.setColor(Color.black);
+				}
+
+				g.fillRect(x, y, squareSize, squareSize);
+				g.setColor(Color.gray);
+				g.drawRect(x, y, squareSize, squareSize);
+			}
+		}
 	}
 
 	private void drawGame() {
@@ -440,23 +474,16 @@ public class GUI implements Observer {
 			public void actionPerformed(ActionEvent ev) {
 				// Deal cards to players
 				view.dealHands(names.keySet());
-				// Start gameController
-				startController();
+				// Start game Controller
+				next.setVisible(false);
+				start.setVisible(false);
+				title.setVisible(false);
+				options.stream().forEach(i -> i.setVisible(false));
+				nameTitle.setVisible(false);
+				nameBox.setVisible(false);
+				charTitle.setVisible(false);
 			}
 		});
-
-		frame.setVisible(true);
-		setup = true;
-	}
-
-	private void startController() {
-		// Remove no longer needed objects
-		controlPanel.removeAll();
-
-		// Add a player turn title
-		JLabel title = new JLabel(view.getTakingTurn().getName() + "'s (" + names.get(view.getTakingTurn()) + ") turn");
-		title.setFont(FONT);
-		controlPanel.add(title);
 
 		// Add a player move instruction
 		moveInfo = new JLabel("Clicked where to move");
@@ -467,6 +494,7 @@ public class GUI implements Observer {
 		roll = new JButton("Roll dice");
 		roll.setFont(FONT);
 		controlPanel.add(roll);
+		roll.setVisible(false);
 
 		roll.addActionListener(new ActionListener() {
 			// Roll dice when pressed
@@ -479,6 +507,7 @@ public class GUI implements Observer {
 		guess = new JButton("Make a guess");
 		guess.setFont(FONT);
 		controlPanel.add(guess);
+		guess.setVisible(false);
 
 		guess.addActionListener(new ActionListener() {
 			// Start guess when pressed
@@ -491,6 +520,7 @@ public class GUI implements Observer {
 		solve = new JButton("Try to solve");
 		solve.setFont(FONT);
 		controlPanel.add(solve);
+		solve.setVisible(false);
 
 		solve.addActionListener(new ActionListener() {
 			// Start solve when pressed
@@ -500,6 +530,7 @@ public class GUI implements Observer {
 		});
 
 		frame.setVisible(true);
+		setup = true;
 	}
 
 	@Override

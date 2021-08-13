@@ -82,7 +82,7 @@ public class Game extends Observable {
 	 */
 	private void update() {
 		setChanged();
-		notifyObservers();
+		notifyObservers(this);
 	}
 
 	/**
@@ -787,6 +787,13 @@ public class Game extends Observable {
 	 */
 	public List<Room> getRooms() {
 		return Collections.unmodifiableList(rooms);
+	}
+	
+	/**
+	 * @return The board of the game
+	 */
+	public Board getBoard() {
+		return board;
 	}
 
 	/**
